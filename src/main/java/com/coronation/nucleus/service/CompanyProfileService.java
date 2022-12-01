@@ -3,6 +3,7 @@ package com.coronation.nucleus.service;
 import com.coronation.nucleus.IResponseEnum;
 import com.coronation.nucleus.entities.CTUser;
 import com.coronation.nucleus.entities.CompanyProfile;
+import com.coronation.nucleus.entities.EquityClass;
 import com.coronation.nucleus.entities.Shareholder;
 import com.coronation.nucleus.interfaces.IResponse;
 import com.coronation.nucleus.pojo.ResponseData;
@@ -11,6 +12,7 @@ import com.coronation.nucleus.pojo.response.CompanyDashboardResponse;
 import com.coronation.nucleus.request.CompanyProfileRequest;
 import com.coronation.nucleus.request.ShareholderRequest;
 import com.coronation.nucleus.respositories.ICompanyProfileRepository;
+import com.coronation.nucleus.respositories.IEquityClassRepository;
 import com.coronation.nucleus.respositories.IShareholderRepository;
 import com.coronation.nucleus.respositories.IUserRepository;
 import com.coronation.nucleus.util.AppProperties;
@@ -42,6 +44,9 @@ public class CompanyProfileService {
 
     @Autowired
     ICompanyProfileRepository iCompanyProfileRepository;
+
+    @Autowired
+    IEquityClassRepository iEquityClassRepository;
 
     @Autowired
     AppProperties appProperties;
@@ -87,9 +92,14 @@ public class CompanyProfileService {
                 shareholder.setLastName(shareholderRequest.getLastName());
                 shareholder.setEmailAddress(shareholderRequest.getEmailAddress());
                 shareholder.setTotalShares(shareholderRequest.getTotalShares());
-                shareholder.setParValue(shareholderRequest.getPricePerShare());
                 shareholder.setDateIssued(shareholderRequest.getDateIssued());
-                shareholder.setEquityClass(shareholderRequest.getEquityClass());
+                Optional<EquityClass> optionalEquityClass = iEquityClassRepository.findById(shareholderRequest.getEquityClass().getId());
+                if (optionalEquityClass.isEmpty()) {
+                    responseData.setFormattedResponse(IResponseEnum.NO_EQUITY_CLASS_FOUND,
+                            String.valueOf(shareholderRequest.getEquityClass()));
+                    return responseData;
+                }
+                shareholder.setEquityClass(optionalEquityClass.get());
                 shareholder.setCompanyProfile(companyProfile);
 
                 companyProfile.addShareholder(shareholder);
@@ -148,9 +158,15 @@ public class CompanyProfileService {
             shareholderRequest.setLastName(shareholder.getLastName());
             shareholderRequest.setEmailAddress(shareholder.getEmailAddress());
             shareholderRequest.setTotalShares(shareholder.getTotalShares());
-            shareholderRequest.setPricePerShare(shareholder.getParValue());
+            shareholderRequest.setPricePerShare(shareholder.getPricePerShare());
             shareholderRequest.setDateIssued(shareholder.getDateIssued());
-            shareholderRequest.setEquityClass(shareholder.getEquityClass());
+            Optional<EquityClass> equityClass = iEquityClassRepository.findById(shareholderRequest.getEquityClass().getId());
+            if (equityClass.isEmpty()) {
+                responseData.setFormattedResponse(IResponseEnum.NO_EQUITY_CLASS_FOUND,
+                        String.valueOf(shareholderRequest.getEquityClass()));
+                return responseData;
+            }
+            shareholderRequest.setEquityClass(equityClass.get());
 
             shareholders.add(shareholderRequest);
         }
@@ -162,7 +178,7 @@ public class CompanyProfileService {
         return responseData;
     }
 
-    public IResponse getDashboardData(long companyId) {
+    public IResponse getDashboardData(long companyId, Long equityClassId) {
 
         ResponseData<CompanyDashboardResponse> responseData = new ResponseData<>();
 
@@ -172,11 +188,20 @@ public class CompanyProfileService {
             return responseData;
         }
 
-
         CompanyDashboardResponse response = new CompanyDashboardResponse();
-        response.setNumberOfShareholders(iShareholderRepository.countByCompanyProfileId(companyId));
+        long numberOfShareholders;
+        long totalIssuedShares;
+        if (equityClassId != null) {
+            numberOfShareholders = iShareholderRepository.countByCompanyProfileIdAndEquityClassId(companyId, equityClassId);
+            totalIssuedShares = iShareholderRepository.allIssuedSharesByCompanyIdAndEquityClass(companyId, equityClassId);
+        } else {
+            numberOfShareholders = iShareholderRepository.countByCompanyProfileId(companyId);
+            totalIssuedShares = iShareholderRepository.allIssuedSharesByCompanyId(companyId);
+        }
+
+        response.setNumberOfShareholders(numberOfShareholders);
         response.setTotalAuthorizedShares(companyProfile.get().getTotalAuthorisedShares());
-        response.setTotalIssuedShares(iShareholderRepository.allIssuesSharesByCompanyId(companyId));
+        response.setTotalIssuedShares(totalIssuedShares);
         response.setEquityClassDistribution(iShareholderRepository.getEquityClassDistribution(companyId));
 
         responseData.setData(response);

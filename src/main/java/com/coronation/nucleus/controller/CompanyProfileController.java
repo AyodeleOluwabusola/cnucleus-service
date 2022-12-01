@@ -33,8 +33,10 @@ public class CompanyProfileController {
     }
 
     @GetMapping("dashboard/{companyId}")
-    public IResponse getCompanyData(@PathVariable("companyId") long id) {
-        return companyProfileService.getDashboardData(id);
+    public IResponse getCompanyData(@PathVariable("companyId") long id, @PathVariable("equityClassId") long equityClassId) {
+        return companyProfileService.getDashboardData(id, equityClassId);
     }
+
+
 
 }

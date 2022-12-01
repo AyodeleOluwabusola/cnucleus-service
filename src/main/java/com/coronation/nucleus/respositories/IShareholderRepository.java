@@ -6,6 +6,7 @@ import com.coronation.nucleus.interfaces.IEquityDistribution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -18,11 +19,14 @@ public interface IShareholderRepository extends JpaRepository<Shareholder, Long>
 
     long countByCompanyProfileId(Long companyId);
 
-    @Query(value = "SELECT SUM(TOTAL_SHARES) from SHARE_HOLDER WHERE COMPANY_PROFILE = :companyId", nativeQuery = true)
-    long allIssuesSharesByCompanyId(Long companyId);
+    long countByCompanyProfileIdAndEquityClassId(Long companyId, Long equityClassId);
 
-    @Query(value = "SELECT SUM(CASE WHEN equity_class IN ('FOUNDER') THEN 1 ELSE 0 END) as founders, SUM(CASE WHEN equity_class IN ('SERIES_A') THEN 1 ELSE 0 END) as seriesA, " +
-            "SUM(CASE WHEN equity_class IN ('SERIES_B') THEN 1 ELSE 0 END) as seriesB, SUM(CASE WHEN equity_class IN ('SERIES_C') THEN 1 ELSE 0 END) as seriesC " +
-            "from SHARE_HOLDER", nativeQuery = true)
-    IEquityDistribution getEquityClassDistribution(Long companyId);
+    @Query(value = "SELECT SUM(TOTAL_SHARES) from SHARE_HOLDER WHERE COMPANY_PROFILE_FK = :companyId", nativeQuery = true)
+    long allIssuedSharesByCompanyId(Long companyId);
+
+    @Query(value = "SELECT SUM(TOTAL_SHARES) from SHARE_HOLDER WHERE COMPANY_PROFILE_FK = :companyId AND EQUITY_CLASS_FK = :equityClass", nativeQuery = true)
+    long allIssuedSharesByCompanyIdAndEquityClass(Long companyId, Long equityClass);
+
+    @Query(value = "SELECT EQUITY_CLASS_FK as equityClass, COUNT(*) from SHARE_HOLDER sh WHERE COMPANY_PROFILE_FK = :companyId GROUP BY EQUITY_CLASS_FK", nativeQuery = true)
+    List<IEquityDistribution> getEquityClassDistribution(Long companyId);
 }

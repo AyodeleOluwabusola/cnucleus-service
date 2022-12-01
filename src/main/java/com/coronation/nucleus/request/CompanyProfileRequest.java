@@ -19,7 +19,7 @@ import java.util.List;
 @NotNullIfAnotherFieldCertainHasValue(fieldName = "stage",  fieldValue = "2, FINAL", dependFieldName = "totalAuthorisedShares", message = "Total authorised shares issued to the company is mandatory")
 @NotNullIfAnotherFieldCertainHasValue(fieldName = "stage",  fieldValue = "2, FINAL", dependFieldName = "parValue", message = "Par value is mandatory")
 @NotNullIfAnotherFieldCertainHasValue(fieldName = "stage",  fieldValue = "FINAL", dependFieldName = "shareholders", message =  "Shareholder(s) must be provided")
-public class CompanyProfileRequest implements IRequest{
+public class CompanyProfileRequest {
 
     private Long companyProfileId;
 

@@ -1,5 +1,6 @@
 package com.coronation.nucleus.request;
 
+import com.coronation.nucleus.entities.EquityClass;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class ShareholderRequest implements IRequest{
+public class ShareholderRequest {
 
     private Long shareholderId;
 
@@ -34,6 +35,6 @@ public class ShareholderRequest implements IRequest{
     private LocalDate dateIssued;
 
     @NotBlank(message = "Please specify the equity class of the shareholder")
-    private String equityClass;
+    private EquityClass equityClass;
 
 }

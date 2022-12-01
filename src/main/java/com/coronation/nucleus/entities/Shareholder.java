@@ -32,16 +32,17 @@ public class Shareholder extends BaseEntity {
     @Column(name = "TOTAL_SHARES")
     private Long totalShares;
 
-    @Column(name = "PAR_VALUE")
-    private Long parValue;
+    @Column(name = "PRICE_PER_VALUE")
+    private Long pricePerShare;
 
     @Column(name = "DATE_ISSUED")
     private LocalDate dateIssued;
 
-    @Column(name = "EQUITY_CLASS")
-    private String equityClass;
+    @ManyToOne
+    @JoinColumn(name = "EQUITY_CLASS_FK")
+    private EquityClass equityClass;
 
     @ManyToOne
-    @JoinColumn(name = "COMPANY_PROFILE")
+    @JoinColumn(name = "COMPANY_PROFILE_FK")
     private CompanyProfile companyProfile;
 }

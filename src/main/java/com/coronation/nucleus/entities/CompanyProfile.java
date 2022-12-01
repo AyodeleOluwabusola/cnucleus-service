@@ -55,6 +55,10 @@ public class CompanyProfile extends BaseEntity {
     @JoinColumn(name = "USER_FK", nullable = false)
     private CTUser user;
 
+    @OneToMany
+    @JoinColumn(name = "EQUITY_CLASS_FK", nullable = false)
+    private Set<EquityClass> equityClasses;
+
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "COMPANY_SHAREHOLDER", joinColumns = @JoinColumn(name = "COMPANY_FK", referencedColumnName = "ID"),
             inverseJoinColumns= @JoinColumn(name = "SHAREHOLDER_FK", referencedColumnName = "ID"))
