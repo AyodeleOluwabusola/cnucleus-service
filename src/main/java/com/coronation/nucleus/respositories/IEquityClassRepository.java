@@ -13,4 +13,6 @@ public interface IEquityClassRepository extends JpaRepository<EquityClass, Long>
 
     @Override
     Optional<EquityClass> findById(Long id);
+
+    Optional<EquityClass> findByName(String name);
 }

@@ -1,6 +1,5 @@
 package com.coronation.nucleus.request;
 
-import com.coronation.nucleus.entities.EquityClass;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +33,6 @@ public class ShareholderRequest {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate dateIssued;
 
-    @NotBlank(message = "Please specify the equity class of the shareholder")
-    private EquityClass equityClass;
+    private EquityClassRequest equityClass;
 
 }

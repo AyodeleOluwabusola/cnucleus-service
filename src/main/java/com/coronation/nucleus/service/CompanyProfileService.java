@@ -7,9 +7,10 @@ import com.coronation.nucleus.entities.EquityClass;
 import com.coronation.nucleus.entities.Shareholder;
 import com.coronation.nucleus.interfaces.IResponse;
 import com.coronation.nucleus.pojo.ResponseData;
-import com.coronation.nucleus.pojo.response.CompanyProfileResponse;
 import com.coronation.nucleus.pojo.response.CompanyDashboardResponse;
+import com.coronation.nucleus.pojo.response.CompanyProfileResponse;
 import com.coronation.nucleus.request.CompanyProfileRequest;
+import com.coronation.nucleus.request.EquityClassRequest;
 import com.coronation.nucleus.request.ShareholderRequest;
 import com.coronation.nucleus.respositories.ICompanyProfileRepository;
 import com.coronation.nucleus.respositories.IEquityClassRepository;
@@ -24,8 +25,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author toyewole
@@ -93,14 +97,34 @@ public class CompanyProfileService {
                 shareholder.setEmailAddress(shareholderRequest.getEmailAddress());
                 shareholder.setTotalShares(shareholderRequest.getTotalShares());
                 shareholder.setDateIssued(shareholderRequest.getDateIssued());
-                Optional<EquityClass> optionalEquityClass = iEquityClassRepository.findById(shareholderRequest.getEquityClass().getId());
-                if (optionalEquityClass.isEmpty()) {
-                    responseData.setFormattedResponse(IResponseEnum.NO_EQUITY_CLASS_FOUND,
-                            String.valueOf(shareholderRequest.getEquityClass()));
-                    return responseData;
+                EquityClass equityClass;
+                if(shareholderRequest.getEquityClass().getId() != null) {
+                    Optional<EquityClass> optionalEquityClass = iEquityClassRepository.findById(shareholderRequest.getEquityClass().getId());
+                    if (optionalEquityClass.isEmpty()) {
+                        responseData.setFormattedResponse(IResponseEnum.NO_EQUITY_CLASS_FOUND,
+                                String.valueOf(shareholderRequest.getEquityClass()));
+                        return responseData;
+                    }
+                    equityClass = optionalEquityClass.get();
+                }else{
+                    Set<EquityClass> prevEquityClass = companyProfile.getEquityClasses();
+                    List<String> prevEquityClassName = Collections.emptyList();
+                    if(prevEquityClass != null && !prevEquityClass.isEmpty()) {
+                        prevEquityClassName = prevEquityClass.stream().map(EquityClass::getName).collect(Collectors.toList());
+                    }
+                    if(!prevEquityClassName.contains(shareholderRequest.getEquityClass().getName())) {
+                        equityClass = new EquityClass();
+                        equityClass.setName(StringUtils.upperCase(shareholderRequest.getEquityClass().getName()));
+                        equityClass.setType(StringUtils.upperCase(shareholderRequest.getEquityClass().getType()));
+                        iEquityClassRepository.save(equityClass);
+                        companyProfile.addEquityClass(equityClass);
+                    }else {
+                        Optional<EquityClass> retrievedEquityClass = iEquityClassRepository.findByName(shareholderRequest.getEquityClass().getName());
+                        equityClass = retrievedEquityClass.orElse(null);
+                    }
                 }
-                shareholder.setEquityClass(optionalEquityClass.get());
                 shareholder.setCompanyProfile(companyProfile);
+                shareholder.setEquityClass(equityClass);
 
                 companyProfile.addShareholder(shareholder);
             }
@@ -115,7 +139,7 @@ public class CompanyProfileService {
         return responseData;
     }
 
-    public IResponse retrieveCompanyProfile(Long userId) {
+    public IResponse retrievePendingCompanyProfileCreation(Long userId) {
 
         ResponseData<CompanyProfileResponse> responseData = new ResponseData<>();
         Optional<CTUser> ctUser = iUserRepository.findById(userId);
@@ -166,7 +190,7 @@ public class CompanyProfileService {
                         String.valueOf(shareholderRequest.getEquityClass()));
                 return responseData;
             }
-            shareholderRequest.setEquityClass(equityClass.get());
+            shareholderRequest.setEquityClass(new EquityClassRequest(equityClass.get()));
 
             shareholders.add(shareholderRequest);
         }

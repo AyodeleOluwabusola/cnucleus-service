@@ -29,7 +29,7 @@ public class CompanyProfileController {
 
     @GetMapping("pending/{loggedInUser}")
     public IResponse createCompanyProfile(@PathVariable("loggedInUser") long id) {
-        return companyProfileService.retrieveCompanyProfile(id);
+        return companyProfileService.retrievePendingCompanyProfileCreation(id);
     }
 
     @GetMapping("dashboard/{companyId}")
