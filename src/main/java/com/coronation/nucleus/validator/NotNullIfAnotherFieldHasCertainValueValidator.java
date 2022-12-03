@@ -8,14 +8,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
-public class NotNullIfAnotherFieldHasCertainValueValidator implements ConstraintValidator<NotNullIfAnotherFieldCertainHasValue, Object> {
+public class NotNullIfAnotherFieldHasCertainValueValidator implements ConstraintValidator<NotNullIfAnotherFieldHasCertainValue, Object> {
 
     private String fieldName;
     private String expectedFieldValue;
     private String dependFieldName;
 
     @Override
-    public void initialize(NotNullIfAnotherFieldCertainHasValue annotation) {
+    public void initialize(NotNullIfAnotherFieldHasCertainValue annotation) {
         fieldName = annotation.fieldName();
         expectedFieldValue = annotation.fieldValue();
         dependFieldName    = annotation.dependFieldName();
@@ -31,8 +31,8 @@ public class NotNullIfAnotherFieldHasCertainValueValidator implements Constraint
         try {
             String fieldValue = BeanUtils.getProperty(value, fieldName);
             String dependFieldValue = BeanUtils.getProperty(value, dependFieldName);
-
             List<String> expectedFieldValues = Arrays.asList(expectedFieldValue.split(","));
+
             if (expectedFieldValues.contains(fieldValue) && dependFieldValue == null) {
                 ctx.disableDefaultConstraintViolation();
                 ctx.buildConstraintViolationWithTemplate(ctx.getDefaultConstraintMessageTemplate())
