@@ -77,12 +77,7 @@ public class CompanyProfile extends BaseEntity implements Serializable {
         if(shareholders == null){
             shareholders = new HashSet<Shareholder>();
         }
-        System.out.println("OLD ID : "+ shareholder.getId());
-        Shareholder exisitingHolder = shareholders.stream()
-                .filter(sh -> sh.getId().equals(shareholder.getEquityClass().getId()))
-                .findFirst().orElse(null);
-        System.out.println("VALUE : "+ shareholders);
-        if(exisitingHolder == null){
+        if(!shareholders.contains(shareholder)){
             return shareholders.add(shareholder);
         }
         return false;
