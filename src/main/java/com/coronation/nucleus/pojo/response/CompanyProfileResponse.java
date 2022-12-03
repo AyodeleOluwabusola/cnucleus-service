@@ -1,12 +1,10 @@
 package com.coronation.nucleus.pojo.response;
 
-import com.coronation.nucleus.entities.EquityClass;
 import com.coronation.nucleus.request.ShareholderRequest;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -33,7 +31,5 @@ public class CompanyProfileResponse {
     private String stage;
 
     private List<ShareholderRequest> shareholders;
-
-    private Set<EquityClass> equityClasses;
 
 }
