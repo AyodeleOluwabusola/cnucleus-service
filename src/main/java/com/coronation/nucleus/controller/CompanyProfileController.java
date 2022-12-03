@@ -29,12 +29,14 @@ public class CompanyProfileController {
 
     @GetMapping("pending/{loggedInUser}")
     public IResponse createCompanyProfile(@PathVariable("loggedInUser") long id) {
-        return companyProfileService.retrieveCompanyProfile(id);
+        return companyProfileService.retrievePendingCompanyProfileCreation(id);
     }
 
     @GetMapping("dashboard/{companyId}")
-    public IResponse getCompanyData(@PathVariable("companyId") long id) {
-        return companyProfileService.getDashboardData(id);
+    public IResponse getCompanyData(@PathVariable("companyId") long id, @PathVariable("equityClassId") long equityClassId) {
+        return companyProfileService.getDashboardData(id, equityClassId);
     }
+
+
 
 }

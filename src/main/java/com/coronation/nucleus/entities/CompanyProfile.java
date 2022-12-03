@@ -56,6 +56,12 @@ public class CompanyProfile extends BaseEntity {
     private CTUser user;
 
     @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "COMPANY_EQUITY_CLASS", joinColumns = @JoinColumn(name = "COMPANY_FK", referencedColumnName = "ID"),
+            inverseJoinColumns= @JoinColumn(name = "EQUITY_CLASS_FK", referencedColumnName = "ID"))
+    @Cascade({CascadeType.ALL})
+    private Set<EquityClass> equityClasses;
+
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "COMPANY_SHAREHOLDER", joinColumns = @JoinColumn(name = "COMPANY_FK", referencedColumnName = "ID"),
             inverseJoinColumns= @JoinColumn(name = "SHAREHOLDER_FK", referencedColumnName = "ID"))
     @Cascade({CascadeType.ALL})
@@ -67,6 +73,16 @@ public class CompanyProfile extends BaseEntity {
         }
         if(!shareholders.contains(shareholder)){
             return shareholders.add(shareholder);
+        }
+        return false;
+    }
+
+    public boolean addEquityClass(EquityClass equityClass) {
+        if(equityClasses == null){
+            equityClasses = new HashSet<EquityClass>();
+        }
+        if(!equityClasses.contains(equityClass)){
+            return equityClasses.add(equityClass);
         }
         return false;
     }

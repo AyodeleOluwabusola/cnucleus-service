@@ -5,20 +5,12 @@ package com.coronation.nucleus.interfaces;
  */
 public interface IEquityDistribution {
 
-    Long getFounders();
+    Long getCount();
 
-    void setFounders(Long founders);
+    void setCount(Long count);
 
-    Long getSeriesA();
+    Long getEquityClass();
 
-    void setSeriesA(Long seriesA);
-
-    Long getSeriesB();
-
-    void setSeriesB(Long seriesB);
-
-    Long getSeriesC();
-
-    void setSeriesC(Long seriesC);
+    void setEquityClass(Long equityClass);
 
 }

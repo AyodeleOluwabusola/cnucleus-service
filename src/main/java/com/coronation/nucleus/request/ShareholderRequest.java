@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class ShareholderRequest implements IRequest{
+public class ShareholderRequest {
 
     private Long shareholderId;
 
@@ -33,7 +33,6 @@ public class ShareholderRequest implements IRequest{
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate dateIssued;
 
-    @NotBlank(message = "Please specify the equity class of the shareholder")
-    private String equityClass;
+    private EquityClassRequest equityClass;
 
 }
