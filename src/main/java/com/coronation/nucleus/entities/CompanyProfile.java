@@ -71,7 +71,12 @@ public class CompanyProfile extends BaseEntity {
         if(shareholders == null){
             shareholders = new HashSet<Shareholder>();
         }
-        if(!shareholders.contains(shareholder)){
+        System.out.println("OLD ID : "+ shareholder.getId());
+        Shareholder exisitingHolder = shareholders.stream()
+                .filter(sh -> sh.getId().equals(shareholder.getEquityClass().getId()))
+                .findFirst().orElse(null);
+        System.out.println("VALUE : "+ shareholders);
+        if(exisitingHolder == null){
             return shareholders.add(shareholder);
         }
         return false;

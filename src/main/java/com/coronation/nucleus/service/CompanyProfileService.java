@@ -58,7 +58,7 @@ public class CompanyProfileService {
     public IResponse createCompanyProfile(CompanyProfileRequest request) {
 
         CompanyProfile companyProfile = new CompanyProfile();
-        ResponseData responseData = new ResponseData();
+        ResponseData<CompanyProfileResponse> responseData = new ResponseData<>();
         if (request.getCompanyProfileId() != null) {
             Optional<CompanyProfile> existingCompanyProfile = iCompanyProfileRepository.findById(request.getCompanyProfileId());
             if (existingCompanyProfile.isEmpty()) {
@@ -96,6 +96,7 @@ public class CompanyProfileService {
                 shareholder.setLastName(shareholderRequest.getLastName());
                 shareholder.setEmailAddress(shareholderRequest.getEmailAddress());
                 shareholder.setTotalShares(shareholderRequest.getTotalShares());
+                shareholder.setPricePerShare(shareholderRequest.getPricePerShare());
                 shareholder.setDateIssued(shareholderRequest.getDateIssued());
                 EquityClass equityClass;
                 if(shareholderRequest.getEquityClass().getId() != null) {
@@ -107,21 +108,7 @@ public class CompanyProfileService {
                     }
                     equityClass = optionalEquityClass.get();
                 }else{
-                    Set<EquityClass> prevEquityClass = companyProfile.getEquityClasses();
-                    List<String> prevEquityClassName = Collections.emptyList();
-                    if(prevEquityClass != null && !prevEquityClass.isEmpty()) {
-                        prevEquityClassName = prevEquityClass.stream().map(EquityClass::getName).collect(Collectors.toList());
-                    }
-                    if(!prevEquityClassName.contains(shareholderRequest.getEquityClass().getName())) {
-                        equityClass = new EquityClass();
-                        equityClass.setName(StringUtils.upperCase(shareholderRequest.getEquityClass().getName()));
-                        equityClass.setType(StringUtils.upperCase(shareholderRequest.getEquityClass().getType()));
-                        iEquityClassRepository.save(equityClass);
-                        companyProfile.addEquityClass(equityClass);
-                    }else {
-                        Optional<EquityClass> retrievedEquityClass = iEquityClassRepository.findByName(shareholderRequest.getEquityClass().getName());
-                        equityClass = retrievedEquityClass.orElse(null);
-                    }
+                    equityClass = getEquityClass(companyProfile, shareholderRequest);
                 }
                 shareholder.setCompanyProfile(companyProfile);
                 shareholder.setEquityClass(equityClass);
@@ -137,6 +124,27 @@ public class CompanyProfileService {
 
         responseData.setResponse(IResponseEnum.SUCCESS);
         return responseData;
+    }
+
+    private EquityClass getEquityClass(CompanyProfile companyProfile, ShareholderRequest shareholderRequest) {
+
+        Set<EquityClass> prevEquityClass = companyProfile.getEquityClasses();
+        List<String> prevEquityClassName = Collections.emptyList();
+        if(prevEquityClass != null && !prevEquityClass.isEmpty()) {
+            prevEquityClassName = prevEquityClass.stream().map(EquityClass::getName).collect(Collectors.toList());
+        }
+        EquityClass equityClass;
+        if(!prevEquityClassName.contains(shareholderRequest.getEquityClass().getName())) {
+            equityClass = new EquityClass();
+            equityClass.setName(StringUtils.upperCase(shareholderRequest.getEquityClass().getName()));
+            equityClass.setType(StringUtils.upperCase(shareholderRequest.getEquityClass().getType()));
+            iEquityClassRepository.save(equityClass);
+            companyProfile.addEquityClass(equityClass);
+        }else {
+            Optional<EquityClass> retrievedEquityClass = iEquityClassRepository.findByName(shareholderRequest.getEquityClass().getName());
+            equityClass = retrievedEquityClass.orElse(null);
+        }
+        return equityClass;
     }
 
     public IResponse retrievePendingCompanyProfileCreation(Long userId) {
@@ -173,6 +181,7 @@ public class CompanyProfileService {
         response.setParValue(profile.getParValue());
         response.setStage(profile.getStage());
         response.setRequestingUser(profile.getUser().getId());
+        response.setEquityClasses(profile.getEquityClasses());
 
         List<ShareholderRequest> shareholders = new ArrayList<>();
         for (Shareholder shareholder : profile.getShareholders()) {
@@ -184,13 +193,11 @@ public class CompanyProfileService {
             shareholderRequest.setTotalShares(shareholder.getTotalShares());
             shareholderRequest.setPricePerShare(shareholder.getPricePerShare());
             shareholderRequest.setDateIssued(shareholder.getDateIssued());
-            Optional<EquityClass> equityClass = iEquityClassRepository.findById(shareholderRequest.getEquityClass().getId());
-            if (equityClass.isEmpty()) {
-                responseData.setFormattedResponse(IResponseEnum.NO_EQUITY_CLASS_FOUND,
-                        String.valueOf(shareholderRequest.getEquityClass()));
-                return responseData;
-            }
-            shareholderRequest.setEquityClass(new EquityClassRequest(equityClass.get()));
+
+            EquityClass equityClass = profile.getEquityClasses().stream()
+                    .filter(eq -> eq.getId().equals(shareholder.getEquityClass().getId()))
+                    .findFirst().orElse(null);
+            shareholderRequest.setEquityClass(equityClass != null ? new EquityClassRequest(equityClass) : null);
 
             shareholders.add(shareholderRequest);
         }
