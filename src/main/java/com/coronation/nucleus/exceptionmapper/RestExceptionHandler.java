@@ -1,6 +1,6 @@
 package com.coronation.nucleus.exceptionmapper;
 
-import com.coronation.nucleus.IResponseEnum;
+import com.coronation.nucleus.enums.IResponseEnum;
 import com.coronation.nucleus.pojo.ResponseData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -23,9 +23,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
         String responseDescription = fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(", "));
-        ResponseData response = new ResponseData();
-        response.setCode(IResponseEnum.INVALID_REQUEST.getCode());
-        response.setDescription("Invalid request : " + responseDescription);
+        ResponseData<String> response = ResponseData.getResponseData(IResponseEnum.INVALID_REQUEST,"Invalid request : " + responseDescription, null );
+
         return new ResponseEntity(response, headers, HttpStatus.OK);
     }
 

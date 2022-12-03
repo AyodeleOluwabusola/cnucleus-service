@@ -1,5 +1,6 @@
 package com.coronation.nucleus.request;
 
+import com.coronation.nucleus.entities.EquityClass;
 import com.coronation.nucleus.validator.NotNullIfAnotherFieldCertainHasValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;

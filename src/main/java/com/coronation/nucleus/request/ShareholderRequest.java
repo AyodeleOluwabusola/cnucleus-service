@@ -1,5 +1,9 @@
 package com.coronation.nucleus.request;
 
+import com.coronation.nucleus.enums.ShareholderCategoryEnum;
+import com.coronation.nucleus.enums.ShareholderTypeEnum;
+import com.coronation.nucleus.validator.NotNullIfAnotherFieldCertainHasValue;
+import com.coronation.nucleus.entities.EquityClass;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,14 +14,17 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
+@NotNullIfAnotherFieldCertainHasValue(fieldName = "category",  fieldValue = "INDIVIDUAL", dependFieldName = "firstName", message = "First Name of the shareholder is mandatory")
+@NotNullIfAnotherFieldCertainHasValue(fieldName = "category",  fieldValue = "INDIVIDUAL", dependFieldName = "lastName", message = "Last Name of the shareholder is mandatory")
+@NotNullIfAnotherFieldCertainHasValue(fieldName = "category",  fieldValue = "COMPANY", dependFieldName = "companyName", message = "Company Name of the shareholder is mandatory")
 public class ShareholderRequest {
 
     private Long shareholderId;
 
-    @NotBlank(message = "First Name of the shareholder is mandatory")
+    private String companyName;
+
     private String firstName;
 
-    @NotBlank(message = "Last Name of the shareholder is mandatory")
     private String lastName;
 
     @NotBlank(message = "Email address of the shareholder is required")
@@ -34,5 +41,10 @@ public class ShareholderRequest {
     private LocalDate dateIssued;
 
     private EquityClassRequest equityClass;
+
+    private ShareholderCategoryEnum category = ShareholderCategoryEnum.INDIVIDUAL;
+
+    @NotNull(message = "Please provide a valide shareholder type")
+    private ShareholderTypeEnum shareholderType = ShareholderTypeEnum.FOUNDER;
 
 }
