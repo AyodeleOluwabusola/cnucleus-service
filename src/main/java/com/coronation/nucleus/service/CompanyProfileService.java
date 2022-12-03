@@ -61,13 +61,10 @@ public class CompanyProfileService {
     public IResponse createCompanyProfile(CompanyProfileRequest request) {
 
         CompanyProfile companyProfile = new CompanyProfile();
-        ResponseData responseData = new ResponseData();
         if (request.getCompanyProfileId() != null) {
             Optional<CompanyProfile> existingCompanyProfile = iCompanyProfileRepository.findById(request.getCompanyProfileId());
             if (existingCompanyProfile.isEmpty()) {
-                responseData.setFormattedResponse(IResponseEnum.NO_COMPANY_PROFILE_FOUND,
-                        String.valueOf(request.getCompanyProfileId()));
-                return responseData;
+                return ResponseData.getResponseData(IResponseEnum.NO_COMPANY_PROFILE_FOUND, String.valueOf(request.getCompanyProfileId()), null);
             }
             companyProfile = existingCompanyProfile.get();
         }
@@ -88,9 +85,7 @@ public class CompanyProfileService {
                 if (shareholderRequest.getShareholderId() != null) {
                     Optional<Shareholder> existingShareholder = iShareholderRepository.findById(shareholderRequest.getShareholderId());
                     if (existingShareholder.isEmpty()) {
-                        responseData.setFormattedResponse(IResponseEnum.NO_SHAREHOLDER_FOUND,
-                                String.valueOf(shareholderRequest.getShareholderId()));
-                        return responseData;
+                        return ResponseData.getResponseData(IResponseEnum.NO_SHAREHOLDER_FOUND, String.valueOf(shareholderRequest.getShareholderId()), null);
                     }
                     shareholder = existingShareholder.get();
                 }
@@ -105,9 +100,7 @@ public class CompanyProfileService {
                 if (shareholderRequest.getEquityClass().getId() != null) {
                     Optional<EquityClass> optionalEquityClass = iEquityClassRepository.findById(shareholderRequest.getEquityClass().getId());
                     if (optionalEquityClass.isEmpty()) {
-                        responseData.setFormattedResponse(IResponseEnum.NO_EQUITY_CLASS_FOUND,
-                                String.valueOf(shareholderRequest.getEquityClass()));
-                        return responseData;
+                        return ResponseData.getResponseData(IResponseEnum.NO_EQUITY_CLASS_FOUND, String.valueOf(shareholderRequest.getEquityClass()), null);
                     }
                     equityClass = optionalEquityClass.get();
                 } else {
