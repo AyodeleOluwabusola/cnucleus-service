@@ -16,7 +16,7 @@ public class EquityClass extends BaseEntity {
     @Column(name = "TYPE", nullable = false)
     private String type;
 
-    @Column(name = "NAME", nullable = false, unique = true)
+    @Column(name = "NAME", nullable = false)
     private String name;
 
 }

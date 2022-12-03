@@ -3,7 +3,12 @@ package com.coronation.nucleus.respositories;
 
 import com.coronation.nucleus.entities.Shareholder;
 import com.coronation.nucleus.interfaces.IEquityDistribution;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -12,7 +17,7 @@ import java.util.Optional;
 /**
  * @author AuodeleOluwabusola
  */
-public interface IShareholderRepository extends JpaRepository<Shareholder, Long> {
+public interface IShareholderRepository extends JpaRepository<Shareholder, Long> , JpaSpecificationExecutor<Shareholder> {
 
     @Override
     Optional<Shareholder> findById(Long id);
@@ -29,4 +34,11 @@ public interface IShareholderRepository extends JpaRepository<Shareholder, Long>
 
     @Query(value = "SELECT EQUITY_CLASS_FK as equityClass, COUNT(*) from SHARE_HOLDER sh WHERE COMPANY_PROFILE_FK = :companyId GROUP BY EQUITY_CLASS_FK", nativeQuery = true)
     List<IEquityDistribution> getEquityClassDistribution(Long companyId);
+
+
+    @Modifying
+    @Query(value = "update Shareholder set deleted = true, active=false where id = :shareholderId" )
+    void softDeleteShareholder(Long shareholderId);
+
+
 }

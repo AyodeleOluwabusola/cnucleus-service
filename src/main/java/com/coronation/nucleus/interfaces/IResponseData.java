@@ -1,6 +1,6 @@
 package com.coronation.nucleus.interfaces;
 
-import com.coronation.nucleus.IResponseEnum;
+import com.coronation.nucleus.enums.IResponseEnum;
 
 /**
  * @author toyewole

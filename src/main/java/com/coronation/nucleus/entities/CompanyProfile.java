@@ -1,5 +1,6 @@
 package com.coronation.nucleus.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
@@ -13,6 +14,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +27,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "COMPANY_PROFILE")
-public class CompanyProfile extends BaseEntity {
+public class CompanyProfile extends BaseEntity implements Serializable {
 
     @Column(name = "COMPANY_NAME", nullable = false)
     private String companyName;
@@ -51,9 +53,11 @@ public class CompanyProfile extends BaseEntity {
     @Column(name = "PAR_VALUE")
     private Long parValue;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "USER_FK", nullable = false)
     private CTUser user;
+
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "COMPANY_EQUITY_CLASS", joinColumns = @JoinColumn(name = "COMPANY_FK", referencedColumnName = "ID"),
@@ -61,6 +65,8 @@ public class CompanyProfile extends BaseEntity {
     @Cascade({CascadeType.ALL})
     private Set<EquityClass> equityClasses;
 
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "COMPANY_SHAREHOLDER", joinColumns = @JoinColumn(name = "COMPANY_FK", referencedColumnName = "ID"),
             inverseJoinColumns= @JoinColumn(name = "SHAREHOLDER_FK", referencedColumnName = "ID"))

@@ -1,4 +1,4 @@
-package com.coronation.nucleus;
+package com.coronation.nucleus.enums;
 
 
 import com.coronation.nucleus.interfaces.IResponse;
@@ -17,6 +17,7 @@ public enum IResponseEnum implements IResponse {
     EMAIL_EXIST(-2, "Email already exist"),
     ERROR(-1, "Error occurred while processing request"),
     SUCCESS(0, "Request processed successfully"),
+    EQUITY_NOT_UNDER_COMPANY_PROFILE(-9,"Equity is not in company's list of equity")
     ;
 
     int code;
