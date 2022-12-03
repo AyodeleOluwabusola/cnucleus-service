@@ -3,12 +3,10 @@ package com.coronation.nucleus.request;
 import com.coronation.nucleus.enums.ShareholderCategoryEnum;
 import com.coronation.nucleus.enums.ShareholderTypeEnum;
 import com.coronation.nucleus.validator.NotNullIfAnotherFieldCertainHasValue;
-import com.coronation.nucleus.entities.EquityClass;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -18,6 +16,7 @@ import java.time.LocalDate;
 @NotNullIfAnotherFieldCertainHasValue(fieldName = "category",  fieldValue = "INDIVIDUAL", dependFieldName = "firstName", message = "First Name of the shareholder is mandatory")
 @NotNullIfAnotherFieldCertainHasValue(fieldName = "category",  fieldValue = "INDIVIDUAL", dependFieldName = "lastName", message = "Last Name of the shareholder is mandatory")
 @NotNullIfAnotherFieldCertainHasValue(fieldName = "category",  fieldValue = "COMPANY", dependFieldName = "companyName", message = "Company Name of the shareholder is mandatory")
+@NotNullIfAnotherFieldCertainHasValue(fieldName = "shareholderType",  fieldValue = "DIRECTOR,INVESTOR,SECRETARY,EMPLOYEE", dependFieldName = "equityClass", message = "Equity class of the shareholder is mandatory")
 public class ShareholderRequest {
 
     private Long shareholderId;
@@ -41,11 +40,11 @@ public class ShareholderRequest {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate dateIssued;
 
-    private @Valid EquityClassRequest equityClass;
+    private EquityClassRequest equityClass;
 
     private ShareholderCategoryEnum category = ShareholderCategoryEnum.INDIVIDUAL;
 
-    @NotNull(message = "Please provide a valide shareholder type")
+    @NotNull(message = "Please provide a valid shareholder type")
     private ShareholderTypeEnum shareholderType = ShareholderTypeEnum.FOUNDER;
 
 }
