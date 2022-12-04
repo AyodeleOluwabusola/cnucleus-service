@@ -1,18 +1,18 @@
 package com.coronation.nucleus.service;
 
-import com.coronation.nucleus.entities.Share;
-import com.coronation.nucleus.enums.EquityTypeEnum;
-import com.coronation.nucleus.enums.IResponseEnum;
 import com.coronation.nucleus.entities.CTUser;
 import com.coronation.nucleus.entities.CompanyProfile;
 import com.coronation.nucleus.entities.EquityClass;
+import com.coronation.nucleus.entities.Share;
 import com.coronation.nucleus.entities.Shareholder;
+import com.coronation.nucleus.enums.EquityTypeEnum;
+import com.coronation.nucleus.enums.IResponseEnum;
+import com.coronation.nucleus.enums.ShareholderTypeEnum;
 import com.coronation.nucleus.interfaces.IResponse;
 import com.coronation.nucleus.pojo.ResponseData;
 import com.coronation.nucleus.pojo.response.CompanyDashboardResponse;
 import com.coronation.nucleus.pojo.response.CompanyProfileResponse;
 import com.coronation.nucleus.request.CompanyProfileRequest;
-import com.coronation.nucleus.request.EquityClassRequest;
 import com.coronation.nucleus.request.ShareholderRequest;
 import com.coronation.nucleus.respositories.ICompanyProfileRepository;
 import com.coronation.nucleus.respositories.IEquityClassRepository;
@@ -22,7 +22,6 @@ import com.coronation.nucleus.util.AppProperties;
 import com.coronation.nucleus.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author toyewole
@@ -120,7 +120,6 @@ public class CompanyProfileService {
             iUserRepository.setPendingRequestPk(companyProfile.getId(), request.getRequestingUser());
         }
 
-
         return ResponseData.getResponseData(IResponseEnum.SUCCESS, "", companyProfile);
     }
 
@@ -140,50 +139,44 @@ public class CompanyProfileService {
             return ResponseData.getResponseData(IResponseEnum.NO_PENDING_REQUEST, null, null);
         }
 
-        Optional<CompanyProfile> companyProfile = iCompanyProfileRepository.findById(pendingRequestPk);
-        if (companyProfile.isEmpty()) {
-            return ResponseData.getResponseData(IResponseEnum.NO_PENDING_REQUEST, null, null);
-        }
+        return iCompanyProfileRepository.getPendingCompanyProfileForUser(userId, pendingRequestPk)
+                .map(profile -> {
 
-        CompanyProfile profile = companyProfile.get();
+                    CompanyProfileResponse response = new CompanyProfileResponse();
+                    response.setCompanyProfileId(profile.getId());
+                    response.setCompanyName(profile.getCompanyName());
+                    response.setCompanyType(profile.getCompanyType());
+                    response.setIncorporationDate(profile.getIncorporationDate().format(Constants.DATE_FORMATTER));
+                    response.setCountryIncorporated(profile.getCountryIncorporated());
+                    response.setCurrency(profile.getCurrency());
+                    response.setTotalAuthorisedShares(String.valueOf(profile.getTotalAuthorisedShares()));
+                    response.setStage(profile.getStage());
+                    response.setRequestingUser(profile.getUser().getId());
 
-        CompanyProfileResponse response = new CompanyProfileResponse();
-        response.setCompanyProfileId(profile.getId());
-        response.setCompanyName(profile.getCompanyName());
-        response.setCompanyType(profile.getCompanyType());
-        response.setIncorporationDate(profile.getIncorporationDate().format(Constants.DATE_FORMATTER));
-        response.setCountryIncorporated(profile.getCountryIncorporated());
-        response.setCurrency(profile.getCurrency());
-        response.setTotalAuthorisedShares(String.valueOf(profile.getTotalAuthorisedShares()));
-        response.setStage(profile.getStage());
-        response.setRequestingUser(profile.getUser().getId());
+                    List<ShareholderRequest> shareholders = profile.getShareholders()
+                            .stream()
+                            .map(shareholder -> {
+                                ShareholderRequest shareholderRequest = new ShareholderRequest();
+                                shareholderRequest.setShareholderId(shareholder.getId());
+                                shareholderRequest.setFirstName(shareholder.getFirstName());
+                                shareholderRequest.setLastName(shareholder.getLastName());
+                                shareholderRequest.setEmailAddress(shareholder.getEmailAddress());
 
-        List<ShareholderRequest> shareholders = new ArrayList<>();
-        for (Shareholder shareholder : profile.getShareholders()) {
-            ShareholderRequest shareholderRequest = new ShareholderRequest();
-            shareholderRequest.setShareholderId(shareholder.getId());
-            shareholderRequest.setFirstName(shareholder.getFirstName());
-            shareholderRequest.setLastName(shareholder.getLastName());
-            shareholderRequest.setEmailAddress(shareholder.getEmailAddress());
+                                Share share = shareholder.getShares().iterator().next(); //at the point of creation shareholders have one share
 
-            Share share = shareholder.getShares().iterator().next();
+                                shareholderRequest.setTotalShares(share.getTotalShares());
+                                shareholderRequest.setDateIssued(share.getDateIssued());
+                                shareholderRequest.setShareId(share.getId());
+                                shareholderRequest.setShareholderType(ShareholderTypeEnum.FOUNDER);
 
-            shareholderRequest.setTotalShares(share.getTotalShares());
-            shareholderRequest.setDateIssued(share.getDateIssued());
-            shareholderRequest.setShareId(share.getId());
+                                return shareholderRequest;
+                            }).collect(Collectors.toList());
 
-            Optional<EquityClass> equityClass = Optional.ofNullable(share.getEquityClass());
-            if (equityClass.isEmpty()) {
-                return ResponseData.getResponseData(IResponseEnum.SUCCESS, String.valueOf(shareholderRequest.getEquityClass()), null);
-            }
-            shareholderRequest.setEquityClass(new EquityClassRequest(equityClass.get()));
 
-            shareholders.add(shareholderRequest);
-        }
+                    response.setShareholders(shareholders);
 
-        response.setShareholders(shareholders);
-
-        return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, response);
+                    return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, response);
+                }).orElse(ResponseData.getResponseData(IResponseEnum.NO_PENDING_REQUEST, null, null));
 
     }
 
@@ -227,7 +220,7 @@ public class CompanyProfileService {
             equityClass = new EquityClass();
             companyProfile.addEquityClass(equityClass);
         }
-        equityClass.setName("FOUNDER");
+        equityClass.setName(ShareholderTypeEnum.FOUNDER.name());
         equityClass.setCode(Optional.ofNullable(equityClass.getCode()).orElse(generateEquityCode(equityClass.getName())));
         equityClass.setPricePerShare(request.getParValue());
         equityClass.setTotalShares(request.getTotalAuthorisedShares());
