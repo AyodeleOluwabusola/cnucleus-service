@@ -10,6 +10,7 @@ public enum IResponseEnum implements IResponse {
 
     NO_EQUITY_CLASS_FOUND(-8, "No Equity class found with this ID: %s"),
     NO_SHAREHOLDER_FOUND(-7, "No Shareholder found with this ID: %s"),
+    NO_SHARE_FOUND(-7, "No Share found with this ID: %s"),
     NO_COMPANY_PROFILE_FOUND(-6, "No Company Profile found with this ID: %s"),
     NO_PENDING_COMPANY_PROFILE_FOUND(-6, "No Pending Company Profile found with this ID: %s"),
     NO_PENDING_REQUEST(-5, "No pending Request found"),

@@ -1,6 +1,8 @@
 package com.coronation.nucleus.entities;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -14,7 +16,8 @@ import java.time.LocalDate;
 /**
  * @author toyewole
  */
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "SHARE")
 public class Share extends BaseEntity{

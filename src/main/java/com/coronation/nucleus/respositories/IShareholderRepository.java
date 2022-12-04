@@ -5,7 +5,6 @@ import com.coronation.nucleus.entities.Shareholder;
 import com.coronation.nucleus.interfaces.IEquityDistribution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -36,9 +35,7 @@ public interface IShareholderRepository extends JpaRepository<Shareholder, Long>
     List<IEquityDistribution> getEquityClassDistribution(Long companyId);
 
 
-    @Modifying
-    @Query(value = "update Shareholder set deleted = true, active=false where id = :shareholderId")
-    void softDeleteShareholder(Long shareholderId);
+
 
 
 }

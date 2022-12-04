@@ -1,11 +1,10 @@
 package com.coronation.nucleus.controller;
 
-import com.coronation.nucleus.entities.Shareholder;
 import com.coronation.nucleus.pojo.ResponseData;
+import com.coronation.nucleus.pojo.ShareDataResp;
 import com.coronation.nucleus.request.ShareholderRequest;
 import com.coronation.nucleus.service.ShareholderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,16 +42,15 @@ public class ShareholderController {
     }
 
     @GetMapping("{companyId}")
-    public ResponseData<Page<Shareholder>> getShareholders(@RequestParam Optional<String> optionalName, @RequestParam int size,
-                                                           @RequestParam int index, @PathVariable("companyId") Long companyId) {
+    public ResponseData<ShareDataResp> getShareholders(@RequestParam("name") Optional<String> optionalName, @RequestParam int size,
+                                                       @RequestParam int index, @PathVariable("companyId") Long companyId) {
         return shareholderService.handleShareholderDataReq(companyId, optionalName, size, index);
     }
 
-
     @DeleteMapping
-    @RequestMapping("{shareholderId}")
-    public ResponseData<Boolean> softDeleteShareholders(@PathVariable(name = "shareholderId") Long shareholderId) {
-        return shareholderService.handleShareHolderDelete(shareholderId);
+    @RequestMapping("/share/{shareId}")
+    public ResponseData<Boolean> softDeleteShareholders(@PathVariable(name = "shareId") Long shareId) {
+        return shareholderService.handleShareHolderDelete(shareId);
     }
 
 

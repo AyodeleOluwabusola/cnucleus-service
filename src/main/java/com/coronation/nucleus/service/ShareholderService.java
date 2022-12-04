@@ -5,21 +5,21 @@ import com.coronation.nucleus.entities.Share;
 import com.coronation.nucleus.entities.Shareholder;
 import com.coronation.nucleus.enums.IResponseEnum;
 import com.coronation.nucleus.pojo.ResponseData;
+import com.coronation.nucleus.pojo.ShareDTO;
+import com.coronation.nucleus.pojo.ShareDataResp;
 import com.coronation.nucleus.request.ShareholderRequest;
 import com.coronation.nucleus.respositories.ICompanyProfileRepository;
 import com.coronation.nucleus.respositories.IEquityClassRepository;
 import com.coronation.nucleus.respositories.IShareRepository;
 import com.coronation.nucleus.respositories.IShareholderRepository;
-import com.coronation.nucleus.respositories.filter.ShareholderQueryFilter;
+import com.coronation.nucleus.respositories.ShareJdbcTemplate;
 import com.coronation.nucleus.util.ProxyTransformer;
 
+import java.util.List;
 import java.util.Objects;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +44,9 @@ public class ShareholderService {
 
     @Autowired
     IShareRepository iShareRepository;
+
+    @Autowired
+    ShareJdbcTemplate shareJdbcTemplate;
 
     public ResponseData<?> handleShareholderCreation(Long companyId, ShareholderRequest shareholderRequest) {
 
@@ -136,22 +139,38 @@ public class ShareholderService {
 
     }
 
-    public ResponseData<Page<Shareholder>> handleShareholderDataReq(Long companyId, Optional<String> optionalName, int size, int index) {
+    public ResponseData<ShareDataResp> handleShareholderDataReq(Long companyId, Optional<String> optionalName, int size, int index) {
 
-        Specification<Shareholder> specification = Specification
-                .where(ShareholderQueryFilter.equalCompanyId(companyId))
-                .and(ShareholderQueryFilter.equalActive(true))
-                .and(ShareholderQueryFilter.likeFirstName(optionalName.orElse(null)));
+        List<ShareDTO> shareDTOS =  shareJdbcTemplate.getShareDtos(companyId,optionalName.orElse(null),index,size);
+        long count = shareJdbcTemplate.getCount(companyId, optionalName.orElse(null));
 
-        Page<Shareholder> page = shareholderRepository.findAll(specification, Pageable.ofSize(size).withPage(index));
-        return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, page);
+        var shareDataResp = new ShareDataResp();
+        shareDataResp.setShareDTOList(shareDTOS);
+        shareDataResp.setCount(count);
+
+        return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, shareDataResp);
 
     }
 
     @Transactional
-    public ResponseData<Boolean> handleShareHolderDelete(Long shareholderId) {
-        shareholderRepository.softDeleteShareholder(shareholderId);
-        log.debug("Soft delete shareholder id : {}", shareholderId);
-        return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, null);
+    public ResponseData<Boolean> handleShareHolderDelete(Long shareId) {
+
+        Optional<Share> optionalShare = iShareRepository.findById(shareId);
+        return optionalShare.map(share -> {
+
+            EquityClass equityClass = share.getEquityClass();
+
+            equityClass.setTotalAllocated(equityClass.getTotalAllocated() - share.getTotalShares());
+            log.debug("Soft delete shareholder id : {}", shareId);
+
+            share.setActive(Boolean.FALSE);
+            share.setDeleted(Boolean.TRUE);
+
+            iShareRepository.save(share);
+
+
+            return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, true);
+        }).orElse(ResponseData.getResponseData(IResponseEnum.NO_SHAREHOLDER_FOUND, String.valueOf(shareId), false));
+
     }
 }
