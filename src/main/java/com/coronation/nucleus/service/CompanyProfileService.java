@@ -7,12 +7,15 @@ import com.coronation.nucleus.entities.CTUser;
 import com.coronation.nucleus.entities.CompanyProfile;
 import com.coronation.nucleus.entities.EquityClass;
 import com.coronation.nucleus.entities.Shareholder;
+import com.coronation.nucleus.enums.EquityTypeEnum;
+import com.coronation.nucleus.enums.IResponseEnum;
+import com.coronation.nucleus.enums.ShareholderTypeEnum;
+import com.coronation.nucleus.enums.ShareholderTypeEnum;
 import com.coronation.nucleus.interfaces.IResponse;
 import com.coronation.nucleus.pojo.ResponseData;
 import com.coronation.nucleus.pojo.response.CompanyDashboardResponse;
 import com.coronation.nucleus.pojo.response.CompanyProfileResponse;
 import com.coronation.nucleus.request.CompanyProfileRequest;
-import com.coronation.nucleus.request.EquityClassRequest;
 import com.coronation.nucleus.request.ShareholderRequest;
 import com.coronation.nucleus.respositories.ICompanyProfileRepository;
 import com.coronation.nucleus.respositories.IEquityClassRepository;
@@ -120,7 +123,6 @@ public class CompanyProfileService {
             iUserRepository.setPendingRequestPk(companyProfile.getId(), request.getRequestingUser());
         }
 
-
         return ResponseData.getResponseData(IResponseEnum.SUCCESS, "", companyProfile);
     }
 
@@ -227,7 +229,7 @@ public class CompanyProfileService {
             equityClass = new EquityClass();
             companyProfile.addEquityClass(equityClass);
         }
-        equityClass.setName("FOUNDER");
+        equityClass.setName(ShareholderTypeEnum.FOUNDER.name());
         equityClass.setCode(Optional.ofNullable(equityClass.getCode()).orElse(generateEquityCode(equityClass.getName())));
         equityClass.setPricePerShare(request.getParValue());
         equityClass.setTotalShares(request.getTotalAuthorisedShares());

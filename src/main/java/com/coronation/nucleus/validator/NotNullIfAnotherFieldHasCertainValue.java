@@ -17,8 +17,8 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = NotNullIfAnotherFieldHasCertainValueValidator.class)
 @Target({ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(NotNullIfAnotherFieldCertainHasValue.List.class)
-public @interface NotNullIfAnotherFieldCertainHasValue {
+@Repeatable(NotNullIfAnotherFieldHasCertainValue.List.class)
+public @interface NotNullIfAnotherFieldHasCertainValue {
 
     String fieldName();
     String fieldValue();
@@ -32,7 +32,7 @@ public @interface NotNullIfAnotherFieldCertainHasValue {
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @interface List {
-        NotNullIfAnotherFieldCertainHasValue[] value();
+        NotNullIfAnotherFieldHasCertainValue[] value();
     }
 
 }

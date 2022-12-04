@@ -1,7 +1,6 @@
 package com.coronation.nucleus.request;
 
-import com.coronation.nucleus.entities.EquityClass;
-import com.coronation.nucleus.validator.NotNullIfAnotherFieldCertainHasValue;
+import com.coronation.nucleus.validator.NotNullIfAnotherFieldHasCertainValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,9 +16,9 @@ import java.util.List;
  */
 @Getter
 @Setter
-@NotNullIfAnotherFieldCertainHasValue(fieldName = "stage",  fieldValue = "2, FINAL", dependFieldName = "totalAuthorisedShares", message = "Total authorised shares issued to the company is mandatory")
-@NotNullIfAnotherFieldCertainHasValue(fieldName = "stage",  fieldValue = "2, FINAL", dependFieldName = "parValue", message = "Par value is mandatory")
-@NotNullIfAnotherFieldCertainHasValue(fieldName = "stage",  fieldValue = "FINAL", dependFieldName = "shareholders", message =  "Shareholder(s) must be provided")
+@NotNullIfAnotherFieldHasCertainValue(fieldName = "stage",  fieldValue = "2, FINAL", dependFieldName = "totalAuthorisedShares", message = "Total authorised shares issued to the company is mandatory")
+@NotNullIfAnotherFieldHasCertainValue(fieldName = "stage",  fieldValue = "2, FINAL", dependFieldName = "parValue", message = "Par value is mandatory")
+@NotNullIfAnotherFieldHasCertainValue(fieldName = "stage",  fieldValue = "FINAL", dependFieldName = "shareholders", message =  "Shareholder(s) must be provided")
 public class CompanyProfileRequest {
 
     private Long companyProfileId;

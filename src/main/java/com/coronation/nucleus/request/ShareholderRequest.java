@@ -2,7 +2,7 @@ package com.coronation.nucleus.request;
 
 import com.coronation.nucleus.enums.ShareholderCategoryEnum;
 import com.coronation.nucleus.enums.ShareholderTypeEnum;
-import com.coronation.nucleus.validator.NotNullIfAnotherFieldCertainHasValue;
+import com.coronation.nucleus.validator.NotNullIfAnotherFieldHasCertainValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,9 +13,10 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@NotNullIfAnotherFieldCertainHasValue(fieldName = "category",  fieldValue = "INDIVIDUAL", dependFieldName = "firstName", message = "First Name of the shareholder is mandatory")
-@NotNullIfAnotherFieldCertainHasValue(fieldName = "category",  fieldValue = "INDIVIDUAL", dependFieldName = "lastName", message = "Last Name of the shareholder is mandatory")
-@NotNullIfAnotherFieldCertainHasValue(fieldName = "category",  fieldValue = "COMPANY", dependFieldName = "companyName", message = "Company Name of the shareholder is mandatory")
+@NotNullIfAnotherFieldHasCertainValue(fieldName = "category",  fieldValue = "INDIVIDUAL", dependFieldName = "firstName", message = "First Name of the shareholder is mandatory")
+@NotNullIfAnotherFieldHasCertainValue(fieldName = "category",  fieldValue = "INDIVIDUAL", dependFieldName = "lastName", message = "Last Name of the shareholder is mandatory")
+@NotNullIfAnotherFieldHasCertainValue(fieldName = "category",  fieldValue = "COMPANY", dependFieldName = "companyName", message = "Company Name of the shareholder is mandatory")
+@NotNullIfAnotherFieldHasCertainValue(fieldName = "shareholderType",  fieldValue = "DIRECTOR,INVESTOR,SECRETARY,EMPLOYEE", dependFieldName = "equityClass", message = "Equity class of the shareholder is mandatory")
 public class ShareholderRequest {
 
     private Long shareholderId;
@@ -45,7 +46,7 @@ public class ShareholderRequest {
 
     private ShareholderCategoryEnum category = ShareholderCategoryEnum.INDIVIDUAL;
 
-    @NotNull(message = "Please provide a valide shareholder type")
+    @NotNull(message = "Please provide a valid shareholder type")
     private ShareholderTypeEnum shareholderType = ShareholderTypeEnum.FOUNDER;
 
 }
