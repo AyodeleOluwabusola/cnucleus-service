@@ -13,7 +13,7 @@ public enum IResponseEnum implements IResponse {
     NO_COMPANY_PROFILE_FOUND(-6, "No Company Profile found with this ID: %s"),
     NO_PENDING_REQUEST(-5, "No pending Request found"),
     NO_USER_FOUND(-4, "No user found"),
-    INVALID_REQUEST(-3, "Invalid Request"),
+    INVALID_REQUEST(-3, "Invalid Request: %s"),
     EMAIL_EXIST(-2, "Email already exist"),
     ERROR(-1, "Error occurred while processing request"),
     SUCCESS(0, "Request processed successfully"),

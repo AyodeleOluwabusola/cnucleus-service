@@ -1,5 +1,6 @@
 package com.coronation.nucleus.util;
 
+import com.coronation.nucleus.entities.Share;
 import com.coronation.nucleus.entities.Shareholder;
 import com.coronation.nucleus.request.ShareholderRequest;
 import lombok.experimental.UtilityClass;
@@ -16,11 +17,9 @@ public class ProxyTransformer {
         shareholder.setEmailAddress(shareholderRequest.getEmailAddress());
         shareholder.setFirstName(shareholderRequest.getFirstName());
         shareholder.setLastName(shareholderRequest.getLastName());
-
         shareholder.setShareholderTypeEnum(shareholderRequest.getShareholderType());
         shareholder.setCategory(shareholderRequest.getCategory());
-        shareholder.setTotalShares(shareholderRequest.getTotalShares());
-        shareholder.setDateIssued(shareholderRequest.getDateIssued());
+
         return shareholder;
     }
 

@@ -11,7 +11,6 @@ import java.util.Optional;
  */
 public interface ICompanyProfileRepository extends JpaRepository<CompanyProfile, Long> {
 
-    @Override
-    Optional<CompanyProfile> findById(Long aLong);
+    Optional<CompanyProfile> findByIdAndStageIsNotContaining(Long aLong, String stage);
 
 }

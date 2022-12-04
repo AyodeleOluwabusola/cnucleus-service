@@ -31,7 +31,7 @@ public class ShareholderRequest {
     private String emailAddress;
 
     @NotNull(message = "Please specify total shares issued to the shareholder")
-    private Long totalShares;
+    private Double totalShares;
 
     @NotNull(message = "Please specify the price per share issued to the shareholder")
     private Long pricePerShare;
@@ -41,6 +41,8 @@ public class ShareholderRequest {
     private LocalDate dateIssued;
 
     private EquityClassRequest equityClass;
+
+    private Long shareId;
 
     private ShareholderCategoryEnum category = ShareholderCategoryEnum.INDIVIDUAL;
 

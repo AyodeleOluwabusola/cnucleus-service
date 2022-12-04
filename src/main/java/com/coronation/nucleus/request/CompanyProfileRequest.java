@@ -40,9 +40,9 @@ public class CompanyProfileRequest {
     @NotBlank(message = "Specify currency the shares were issued in")
     private String currency;
 
-    private Long totalAuthorisedShares;
+    private Double totalAuthorisedShares;
 
-    private Long parValue;
+    private Double parValue;
 
     @NotNull(message = "Requesting user is required")
     private Long requestingUser;

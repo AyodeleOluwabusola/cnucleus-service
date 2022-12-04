@@ -48,10 +48,7 @@ public class CompanyProfile extends BaseEntity implements Serializable {
     private String stage;
 
     @Column(name = "TOTAL_SHARES")
-    private Long totalAuthorisedShares;
-
-    @Column(name = "PAR_VALUE")
-    private Long parValue;
+    private Double totalAuthorisedShares;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
@@ -75,7 +72,7 @@ public class CompanyProfile extends BaseEntity implements Serializable {
 
     public boolean addShareholder(Shareholder shareholder) {
         if(shareholders == null){
-            shareholders = new HashSet<Shareholder>();
+            shareholders = new HashSet<>();
         }
         if(!shareholders.contains(shareholder)){
             return shareholders.add(shareholder);
