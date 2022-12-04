@@ -187,7 +187,7 @@ public class CompanyProfileService {
 
     }
 
-    public IResponse getDashboardData(long companyId, Long equityClassId) {
+    public IResponse getDashboardData(long companyId, Optional<Long> equityClassId) {
 
         ResponseData<CompanyDashboardResponse> responseData = new ResponseData<>();
 
@@ -200,9 +200,9 @@ public class CompanyProfileService {
         CompanyDashboardResponse response = new CompanyDashboardResponse();
         long numberOfShareholders;
         double totalIssuedShares;
-        if (equityClassId != null) {
-            numberOfShareholders = iShareholderRepository.getCountByCompanyProfileIdAndEquityClassId(companyId, equityClassId);
-            totalIssuedShares = iShareholderRepository.allIssuedSharesByCompanyIdAndEquityClass(companyId, equityClassId);
+        if (equityClassId.isPresent()) {
+            numberOfShareholders = iShareholderRepository.getCountByCompanyProfileIdAndEquityClassId(companyId, equityClassId.get());
+            totalIssuedShares = iShareholderRepository.allIssuedSharesByCompanyIdAndEquityClass(companyId, equityClassId.get());
         } else {
             numberOfShareholders = iShareholderRepository.countByCompanyProfileId(companyId);
             totalIssuedShares = iShareholderRepository.allIssuedSharesByCompanyId(companyId);

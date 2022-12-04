@@ -13,6 +13,6 @@ import java.util.Optional;
 public interface ICompanyProfileRepository extends JpaRepository<CompanyProfile, Long> {
 
     @Query("select  c from CompanyProfile  c where c.id =:companyId and c.stage <> 'FINAL'and c.user.id = :userId ")
-    Optional<CompanyProfile> getPendingCompanyProfileForUser(Long aLong, Long userId);
+    Optional<CompanyProfile> getPendingCompanyProfileForUser(Long companyId, Long userId);
 
 }
