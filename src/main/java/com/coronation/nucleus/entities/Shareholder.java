@@ -5,8 +5,9 @@ import com.coronation.nucleus.enums.ShareholderTypeEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -46,7 +47,8 @@ public class Shareholder extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ShareholderTypeEnum shareholderTypeEnum;
 
-    @OneToMany(mappedBy = "shareholder" , cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "shareholder")
+    @Cascade(CascadeType.ALL)
     private Set<Share> shares;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

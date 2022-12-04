@@ -3,7 +3,6 @@ package com.coronation.nucleus.request;
 import com.coronation.nucleus.enums.ShareholderCategoryEnum;
 import com.coronation.nucleus.enums.ShareholderTypeEnum;
 import com.coronation.nucleus.validator.NotNullIfAnotherFieldCertainHasValue;
-import com.coronation.nucleus.entities.EquityClass;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;

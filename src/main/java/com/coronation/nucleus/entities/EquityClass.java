@@ -32,7 +32,7 @@ public class EquityClass extends BaseEntity {
     @Column(name = "TOTAL_SHARES", nullable = false)
     private Double totalShares;
 
-    @Column(name = "TOTAL_ALLOCATED", nullable = false)
-    private Double totalAllocated;
+    @Column(name = "TOTAL_ALLOCATED")
+    private Double totalAllocated = 0d;
 
 }

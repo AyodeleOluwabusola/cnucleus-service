@@ -22,6 +22,7 @@ import com.coronation.nucleus.util.AppProperties;
 import com.coronation.nucleus.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,14 +57,13 @@ public class CompanyProfileService {
     @Autowired
     AppProperties appProperties;
 
-    //TODO perform a check for a complete company profle so has to not cause trouble
     public IResponse createCompanyProfile(CompanyProfileRequest request) {
 
         CompanyProfile companyProfile = new CompanyProfile();
         if (request.getCompanyProfileId() != null) {
-            Optional<CompanyProfile> existingCompanyProfile = iCompanyProfileRepository.findByIdAndStageIsNotContaining(request.getCompanyProfileId(), "FINAL");
+            Optional<CompanyProfile> existingCompanyProfile = iCompanyProfileRepository.getPendingCompanyProfileForUser(request.getCompanyProfileId(), request.getRequestingUser());
             if (existingCompanyProfile.isEmpty()) {
-                return ResponseData.getResponseData(IResponseEnum.NO_COMPANY_PROFILE_FOUND, String.valueOf(request.getCompanyProfileId()), null);
+                return ResponseData.getResponseData(IResponseEnum.NO_PENDING_COMPANY_PROFILE_FOUND, String.valueOf(request.getCompanyProfileId()), null);
             }
             companyProfile = existingCompanyProfile.get();
         }
@@ -76,6 +76,9 @@ public class CompanyProfileService {
         companyProfile.setTotalAuthorisedShares(request.getTotalAuthorisedShares());
         companyProfile.setUser(iUserRepository.getReferenceById(request.getRequestingUser()));
         companyProfile.setStage(request.getStage());
+        companyProfile.setTotalAllocated(request.getTotalAuthorisedShares()); // all are allocated to the equity type
+
+        EquityClass equityClass = getEquityClass(companyProfile, request);
 
         if (request.getShareholders() != null && !request.getShareholders().isEmpty()) {
             for (ShareholderRequest shareholderRequest : request.getShareholders()) {
@@ -87,24 +90,6 @@ public class CompanyProfileService {
                     }
                     shareholder = existingShareholder.get();
                 }
-                EquityClass equityClass = null;
-
-                if (companyProfile.getEquityClasses() == null) {
-                    equityClass = new EquityClass();
-                    companyProfile.addEquityClass(equityClass);
-
-                } else {
-                    equityClass = companyProfile.getEquityClasses().iterator().next();
-                }
-                equityClass.setName("FOUNDER");
-                equityClass.setCode(Optional.ofNullable(equityClass.getCode()).
-                        orElse(generateEquityCode(equityClass.getName())));
-                equityClass.setPricePerShare(request.getParValue());
-
-                equityClass.setType(EquityTypeEnum.COMMON.name());
-
-
-                iEquityClassRepository.save(equityClass);
 
                 shareholder.setFirstName(shareholderRequest.getFirstName());
                 shareholder.setLastName(shareholderRequest.getLastName());
@@ -115,7 +100,13 @@ public class CompanyProfileService {
                 share.setTotalShares(shareholderRequest.getTotalShares());
                 share.setDateIssued(shareholderRequest.getDateIssued());
                 share.setEquityClass(equityClass);
+                share.setShareholder(shareholder);
 
+                if ((equityClass.getTotalAllocated() + share.getTotalShares()) > equityClass.getTotalShares()) {
+                    return ResponseData.getResponseData(IResponseEnum.ALLOCATION_SIZE_GREATER_THAN_TOTAL_SHARES, null, null);
+                }
+
+                equityClass.setTotalAllocated(equityClass.getTotalAllocated() + share.getTotalShares());
                 shareholder.addShare(share);
 
                 shareholder.setCompanyProfile(companyProfile);
@@ -134,7 +125,7 @@ public class CompanyProfileService {
     }
 
     private String generateEquityCode(@NotNull String name) {
-        return name.substring(0, 2) + Constants.DATE_TIME_FORMATTER.format(LocalDateTime.now());
+        return name.substring(0, 2) + "-" + Constants.EQUITY_STAMP.format(LocalDateTime.now());
     }
 
     public IResponse retrievePendingCompanyProfileCreation(Long userId) {
@@ -179,6 +170,8 @@ public class CompanyProfileService {
 
             shareholderRequest.setTotalShares(share.getTotalShares());
             shareholderRequest.setDateIssued(share.getDateIssued());
+            shareholderRequest.setShareId(share.getId());
+
             Optional<EquityClass> equityClass = Optional.ofNullable(share.getEquityClass());
             if (equityClass.isEmpty()) {
                 return ResponseData.getResponseData(IResponseEnum.SUCCESS, String.valueOf(shareholderRequest.getEquityClass()), null);
@@ -223,5 +216,23 @@ public class CompanyProfileService {
         responseData.setData(response);
         responseData.setResponse(IResponseEnum.SUCCESS);
         return responseData;
+    }
+
+
+    private EquityClass getEquityClass(CompanyProfile companyProfile, CompanyProfileRequest request) {
+        EquityClass equityClass = null;
+        if (companyProfile.getEquityClasses() != null) {
+            equityClass = companyProfile.getEquityClasses().iterator().next();
+        } else {
+            equityClass = new EquityClass();
+            companyProfile.addEquityClass(equityClass);
+        }
+        equityClass.setName("FOUNDER");
+        equityClass.setCode(Optional.ofNullable(equityClass.getCode()).orElse(generateEquityCode(equityClass.getName())));
+        equityClass.setPricePerShare(request.getParValue());
+        equityClass.setTotalShares(request.getTotalAuthorisedShares());
+        equityClass.setType(EquityTypeEnum.COMMON.name());
+
+        return equityClass;
     }
 }

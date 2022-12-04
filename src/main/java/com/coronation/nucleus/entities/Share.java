@@ -1,15 +1,15 @@
 package com.coronation.nucleus.entities;
 
 import lombok.Data;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.LocalDate;
-import java.util.HashSet;
 
 /**
  * @author toyewole
@@ -26,12 +26,14 @@ public class Share extends BaseEntity{
     @Column(name = "TOTAL_SHARES")
     private Double totalShares;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "EQUITY_CLASS_FK")
+    @Cascade(CascadeType.ALL)
     private EquityClass equityClass;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "SHARE_HOLDER_FK")
+    @ManyToOne
+    @JoinColumn(name = "SHARE_HOLDER_FK", nullable = false)
+    @Cascade(CascadeType.ALL)
     private Shareholder shareholder;
 
 }

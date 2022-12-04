@@ -48,7 +48,10 @@ public class CompanyProfile extends BaseEntity implements Serializable {
     private String stage;
 
     @Column(name = "TOTAL_SHARES")
-    private Double totalAuthorisedShares;
+    private Double  totalAuthorisedShares;
+
+    @Column(name = "TOTAL_ALLOCATED")
+    private Double totalAllocated = 0d;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
