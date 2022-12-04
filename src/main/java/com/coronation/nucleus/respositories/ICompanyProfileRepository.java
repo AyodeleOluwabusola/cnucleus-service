@@ -3,6 +3,7 @@ package com.coronation.nucleus.respositories;
 
 import com.coronation.nucleus.entities.CompanyProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
@@ -11,7 +12,7 @@ import java.util.Optional;
  */
 public interface ICompanyProfileRepository extends JpaRepository<CompanyProfile, Long> {
 
-    @Override
-    Optional<CompanyProfile> findById(Long aLong);
+    @Query("select  c from CompanyProfile  c where c.id =:companyId and c.stage <> 'FINAL'and c.user.id = :userId ")
+    Optional<CompanyProfile> getPendingCompanyProfileForUser(Long companyId, Long userId);
 
 }

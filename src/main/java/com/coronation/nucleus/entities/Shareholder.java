@@ -5,16 +5,20 @@ import com.coronation.nucleus.enums.ShareholderTypeEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author toyewole
@@ -35,15 +39,6 @@ public class Shareholder extends BaseEntity {
     @Column(name = "EMAIL", nullable = false)
     private String emailAddress;
 
-    @Column(name = "TOTAL_SHARES")
-    private Long totalShares;
-
-    @Column(name = "PRICE_PER_VALUE")
-    private Long pricePerShare;
-
-    @Column(name = "DATE_ISSUED")
-    private LocalDate dateIssued;
-
     @Column(name = "CATEGORY")
     @Enumerated(EnumType.STRING)
     private ShareholderCategoryEnum category;
@@ -52,12 +47,23 @@ public class Shareholder extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ShareholderTypeEnum shareholderTypeEnum;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "EQUITY_CLASS_FK")
-    private EquityClass equityClass;
+    @OneToMany(mappedBy = "shareholder")
+    @Cascade(CascadeType.ALL)
+    private Set<Share> shares;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "COMPANY_PROFILE_FK")
     private CompanyProfile companyProfile;
+
+    public boolean addShare(Share share) {
+        if(shares == null){
+            shares = new HashSet<>();
+        }
+        if(!shares.contains(share)){
+            return shares.add(share);
+        }
+        return false;
+    }
+
 }

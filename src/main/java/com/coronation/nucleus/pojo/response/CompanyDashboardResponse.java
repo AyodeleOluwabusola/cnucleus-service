@@ -11,7 +11,7 @@ import java.util.List;
 public class CompanyDashboardResponse {
 
     private Long numberOfShareholders;
-    private Long totalAuthorizedShares;
-    private Long totalIssuedShares;
+    private Double totalAuthorizedShares;
+    private Double totalIssuedShares;
     private List<IEquityDistribution> equityClassDistribution;
 }
