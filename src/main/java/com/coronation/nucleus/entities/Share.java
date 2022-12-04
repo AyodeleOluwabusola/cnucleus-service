@@ -1,6 +1,5 @@
 package com.coronation.nucleus.entities;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;

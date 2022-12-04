@@ -31,11 +31,7 @@ public interface IShareholderRepository extends JpaRepository<Shareholder, Long>
     double allIssuedSharesByCompanyIdAndEquityClass(Long companyId, Long equityClass);
 
 
-    @Query(value = "SELECT s.equityClass.id as equityClass, COUNT(s) as count from Share s WHERE s.shareholder.companyProfile.id = :companyId GROUP BY  s.equityClass.id ")
+    @Query(value = "SELECT s.equityClass.name as equityClass, COUNT(s) as count from Share s WHERE s.shareholder.companyProfile.id = :companyId GROUP BY  s.equityClass.id ")
     List<IEquityDistribution> getEquityClassDistribution(Long companyId);
-
-
-
-
 
 }
