@@ -35,7 +35,7 @@ public class Shareholder extends BaseEntity {
     @Column(name = "LAST_NAME", nullable = false)
     private String lastName;
 
-    @Column(name = "EMAIL", nullable = false)
+    @Column(name = "EMAIL")
     private String emailAddress;
 
     @Column(name = "CATEGORY")

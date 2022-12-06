@@ -38,7 +38,4 @@ public class CompanyProfileController {
     public IResponse getCompanyData(@PathVariable("companyId") long id, @RequestParam("equityClassId")Optional<Long> equityClassId) {
         return companyProfileService.getDashboardData(id, equityClassId);
     }
-
-
-
 }

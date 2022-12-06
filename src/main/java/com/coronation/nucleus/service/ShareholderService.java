@@ -14,15 +14,13 @@ import com.coronation.nucleus.respositories.IShareRepository;
 import com.coronation.nucleus.respositories.IShareholderRepository;
 import com.coronation.nucleus.respositories.ShareJdbcTemplate;
 import com.coronation.nucleus.util.ProxyTransformer;
-
-import java.util.List;
-import java.util.Objects;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -91,9 +89,7 @@ public class ShareholderService {
     }
 
     private boolean isEquityUnderCompany(Set<EquityClass> equityClasses, EquityClass equityClass) {
-
         return equityClasses.stream().anyMatch(equity -> equityClass.getId().equals(equity.getId()));
-
     }
 
     public ResponseData<?> editShareholder(ShareholderRequest shareholderRequest) {
@@ -149,7 +145,6 @@ public class ShareholderService {
         shareDataResp.setCount(count);
 
         return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, shareDataResp);
-
     }
 
     @Transactional

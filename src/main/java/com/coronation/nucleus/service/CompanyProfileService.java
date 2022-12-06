@@ -18,7 +18,6 @@ import com.coronation.nucleus.respositories.ICompanyProfileRepository;
 import com.coronation.nucleus.respositories.IEquityClassRepository;
 import com.coronation.nucleus.respositories.IShareholderRepository;
 import com.coronation.nucleus.respositories.IUserRepository;
-import com.coronation.nucleus.util.AppProperties;
 import com.coronation.nucleus.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -28,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -54,9 +52,6 @@ public class CompanyProfileService {
     @Autowired
     IEquityClassRepository iEquityClassRepository;
 
-    @Autowired
-    AppProperties appProperties;
-
     public IResponse createCompanyProfile(CompanyProfileRequest request) {
 
         CompanyProfile companyProfile = new CompanyProfile();
@@ -68,13 +63,18 @@ public class CompanyProfileService {
             companyProfile = existingCompanyProfile.get();
         }
 
+        Optional<CTUser> ctUser = iUserRepository.findById(request.getRequestingUser());
+        if(ctUser.isEmpty()){
+            return ResponseData.getResponseData(IResponseEnum.NO_USER_FOUND, null, null);
+        }
+
+        companyProfile.setUser(ctUser.get());
         companyProfile.setCompanyName(request.getCompanyName());
         companyProfile.setCompanyType(request.getCompanyType());
         companyProfile.setIncorporationDate(request.getIncorporationDate());
         companyProfile.setCountryIncorporated(request.getCountryIncorporated());
         companyProfile.setCurrency(request.getCurrency());
         companyProfile.setTotalAuthorisedShares(request.getTotalAuthorisedShares());
-        companyProfile.setUser(iUserRepository.getReferenceById(request.getRequestingUser()));
         companyProfile.setStage(request.getStage());
         companyProfile.setTotalAllocated(request.getTotalAuthorisedShares()); // all are allocated to the equity type
 
