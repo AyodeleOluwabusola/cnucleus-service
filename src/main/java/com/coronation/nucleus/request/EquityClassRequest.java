@@ -10,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 public class EquityClassRequest {
 
+
     private Long id;
 
     @NotBlank(message = "Equity class type must be provided")

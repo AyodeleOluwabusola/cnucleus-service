@@ -66,4 +66,10 @@ public class Shareholder extends BaseEntity {
         return false;
     }
 
+    public Set<Share> getShares() {
+        if(shares == null){
+            shares = new HashSet<>();
+        }
+        return shares;
+    }
 }

@@ -5,7 +5,6 @@ import com.coronation.nucleus.pojo.ShareDataResp;
 import com.coronation.nucleus.request.ShareholderRequest;
 import com.coronation.nucleus.service.ShareholderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,8 +46,9 @@ public class ShareholderController {
         return shareholderService.handleShareholderDataReq(companyId, optionalName, size, index);
     }
 
-    @DeleteMapping
-    public List<ResponseData<Long>> softDeleteShareholders(List<Long> shareId) {
+    @RequestMapping("/delete")
+    @PostMapping()
+    public List<ResponseData<Long>> softDeleteShareholders(@RequestBody List<Long> shareId) {
         return shareholderService.handleShareHolderDelete(shareId);
     }
 

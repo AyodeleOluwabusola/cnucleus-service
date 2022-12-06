@@ -1,6 +1,5 @@
 package com.coronation.nucleus.util;
 
-import com.coronation.nucleus.entities.Share;
 import com.coronation.nucleus.entities.Shareholder;
 import com.coronation.nucleus.request.ShareholderRequest;
 import lombok.experimental.UtilityClass;

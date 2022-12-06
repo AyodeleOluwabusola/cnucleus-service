@@ -17,7 +17,7 @@ public enum IResponseEnum implements IResponse {
     NO_USER_FOUND(-4, "No user found"),
     INVALID_REQUEST(-3, "Invalid Request: %s"),
     EMAIL_EXIST(-2, "Email already exist"),
-    ERROR(-1, "Error occurred while processing request"),
+    ERROR(-1, "Error occurred while processing request: %s"),
     SUCCESS(0, "Request processed successfully"),
     EQUITY_NOT_UNDER_COMPANY_PROFILE(-9,"Equity is not in company's list of equity"),
     ALLOCATION_SIZE_GREATER_THAN_TOTAL_SHARES(10, "Total shares is lesser than the allocation Size")
