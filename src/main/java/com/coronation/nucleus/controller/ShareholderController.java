@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
+import java.util.List;
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -30,14 +32,12 @@ public class ShareholderController {
 
 
     @PostMapping()
-    @RequestMapping("/{companyId}/create")
-    public ResponseData<?> createShareholder(@PathVariable("companyId") Long companyId, @Valid @RequestBody ShareholderRequest shareholderRequest) {
-        return shareholderService.handleShareholderCreation(companyId, shareholderRequest);
+    public List<ResponseData<?>> createShareholder(@RequestBody List<@Valid ShareholderRequest> shareholderRequestList) {
+        return shareholderService.handleShareholderCreation(shareholderRequestList);
     }
 
     @PutMapping()
-    @RequestMapping("/{companyId}/edit")
-    public ResponseData<?> editShareholder(@Valid @RequestBody ShareholderRequest shareholderRequest) {
+    public ResponseData<?> editShareholder(@RequestBody @Valid ShareholderRequest shareholderRequest) {
         return shareholderService.editShareholder(shareholderRequest);
     }
 
@@ -48,8 +48,7 @@ public class ShareholderController {
     }
 
     @DeleteMapping
-    @RequestMapping("/share/{shareId}")
-    public ResponseData<Boolean> softDeleteShareholders(@PathVariable(name = "shareId") Long shareId) {
+    public List<ResponseData<Long>> softDeleteShareholders(List<Long> shareId) {
         return shareholderService.handleShareHolderDelete(shareId);
     }
 

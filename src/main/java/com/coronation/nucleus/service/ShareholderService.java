@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author toyewole
@@ -48,46 +49,50 @@ public class ShareholderService {
     @Autowired
     ShareJdbcTemplate shareJdbcTemplate;
 
-    public ResponseData<?> handleShareholderCreation(Long companyId, ShareholderRequest shareholderRequest) {
+    public List<ResponseData<?>> handleShareholderCreation(List<ShareholderRequest> shareholderRequestList) {
 
-        return companyProfileRepository.findById(companyId)
-                .map(companyProfile -> {
-                    Shareholder shareholder = Optional.ofNullable(shareholderRequest.getShareholderId())
-                            .flatMap(id -> shareholderRepository.findById(id))
-                            .orElse(ProxyTransformer.transformToShareholder(shareholderRequest));
+        return shareholderRequestList.stream()
+                .map(shareholderRequest -> companyProfileRepository.findById(shareholderRequest.getCompanyId())
+                        .map(companyProfile -> handleShareholderCreation(shareholderRequest, companyProfile))
+                        .orElse(ResponseData.getResponseData(IResponseEnum.NO_COMPANY_PROFILE_FOUND, null, null)))
+                .collect(Collectors.toList());
+    }
 
-                    if (shareholder == null) {
-                        return ResponseData.getResponseData(IResponseEnum.NO_SHAREHOLDER_FOUND, null, null);
-                    }
-                    shareholder.setCompanyProfile(companyProfile);
+    private ResponseData<Object> handleShareholderCreation(ShareholderRequest shareholderRequest, com.coronation.nucleus.entities.CompanyProfile companyProfile) {
+        Shareholder shareholder = Optional.ofNullable(shareholderRequest.getShareholderId())
+                .flatMap(id -> shareholderRepository.findById(id))
+                .orElse(ProxyTransformer.transformToShareholder(shareholderRequest));
 
-                    Optional<EquityClass> optionalEquityClass = Optional
-                            .ofNullable(shareholderRequest.getEquityClass().getId())
-                            .flatMap(id -> iEquityClassRepository.findById(id));
+        if (shareholder == null) {
+            return ResponseData.getResponseData(IResponseEnum.NO_SHAREHOLDER_FOUND, null, null);
+        }
+        shareholder.setCompanyProfile(companyProfile);
 
-                    if (optionalEquityClass.isEmpty()) {
-                        return ResponseData.getResponseData(IResponseEnum.NO_EQUITY_CLASS_FOUND, null, null);
-                    }
-                    if (!isEquityUnderCompany(companyProfile.getEquityClasses(), optionalEquityClass.get())) {
-                        ResponseData.getResponseData(IResponseEnum.EQUITY_NOT_UNDER_COMPANY_PROFILE, null, null);
-                    }
+        Optional<EquityClass> optionalEquityClass = Optional
+                .ofNullable(shareholderRequest.getEquityClass().getId())
+                .flatMap(id -> iEquityClassRepository.findById(id));
 
-                    Share share = new Share();
-                    share.setShareholder(shareholder);
-                    share.setTotalShares(shareholderRequest.getTotalShares());
-                    share.setDateIssued(shareholderRequest.getDateIssued());
-                    share.setEquityClass(optionalEquityClass.get());
+        if (optionalEquityClass.isEmpty()) {
+            return ResponseData.getResponseData(IResponseEnum.NO_EQUITY_CLASS_FOUND, null, null);
+        }
+        if (!isEquityUnderCompany(companyProfile.getEquityClasses(), optionalEquityClass.get())) {
+            ResponseData.getResponseData(IResponseEnum.EQUITY_NOT_UNDER_COMPANY_PROFILE, null, null);
+        }
 
-                    shareholder.addShare(share);
+        Share share = new Share();
+        share.setShareholder(shareholder);
+        share.setTotalShares(shareholderRequest.getTotalShares());
+        share.setDateIssued(shareholderRequest.getDateIssued());
+        share.setEquityClass(optionalEquityClass.get());
 
-                    companyProfile.getShareholders().add(shareholder);
+        shareholder.addShare(share);
 
-                    companyProfileRepository.save(companyProfile);
-                    shareholderRepository.save(shareholder);
+        companyProfile.getShareholders().add(shareholder);
 
-                    return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, null);
-                }).orElse(ResponseData.getResponseData(IResponseEnum.NO_COMPANY_PROFILE_FOUND, null, null));
+        companyProfileRepository.save(companyProfile);
+        shareholderRepository.save(shareholder);
 
+        return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, shareholder.getId());
     }
 
     private boolean isEquityUnderCompany(Set<EquityClass> equityClasses, EquityClass equityClass) {
@@ -141,7 +146,7 @@ public class ShareholderService {
 
     public ResponseData<ShareDataResp> handleShareholderDataReq(Long companyId, Optional<String> optionalName, int size, int index) {
 
-        List<ShareDTO> shareDTOS =  shareJdbcTemplate.getShareDtos(companyId,optionalName.orElse(null),index,size);
+        List<ShareDTO> shareDTOS = shareJdbcTemplate.getShareDtos(companyId, optionalName.orElse(null), index, size);
         long count = shareJdbcTemplate.getCount(companyId, optionalName.orElse(null));
 
         var shareDataResp = new ShareDataResp();
@@ -153,24 +158,25 @@ public class ShareholderService {
     }
 
     @Transactional
-    public ResponseData<Boolean> handleShareHolderDelete(Long shareId) {
+    public List<ResponseData<Long>> handleShareHolderDelete(List<Long> shareIds) {
 
-        Optional<Share> optionalShare = iShareRepository.findById(shareId);
-        return optionalShare.map(share -> {
+       return shareIds.stream()
+                .map(shareId -> iShareRepository.findById(shareId)
+                .map(share -> deleteShares(shareId, share))
+                        .orElse(ResponseData.getResponseData(IResponseEnum.NO_SHAREHOLDER_FOUND, null, shareId)))
+               .collect(Collectors.toList());
 
-            EquityClass equityClass = share.getEquityClass();
+    }
 
-            equityClass.setTotalAllocated(equityClass.getTotalAllocated() - share.getTotalShares());
-            log.debug("Soft delete shareholder id : {}", shareId);
+    private ResponseData<Long> deleteShares(Long shareId, Share share) {
+        EquityClass equityClass = share.getEquityClass();
 
-            share.setActive(Boolean.FALSE);
-            share.setDeleted(Boolean.TRUE);
+        equityClass.setTotalAllocated(equityClass.getTotalAllocated() - share.getTotalShares());
+        log.debug("Soft delete shareholder id : {}", share.getId());
 
-            iShareRepository.save(share);
+        share.setActive(Boolean.FALSE);
+        share.setDeleted(Boolean.TRUE);
 
-
-            return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, true);
-        }).orElse(ResponseData.getResponseData(IResponseEnum.NO_SHAREHOLDER_FOUND, String.valueOf(shareId), false));
-
+        return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, shareId);
     }
 }

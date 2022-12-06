@@ -44,6 +44,9 @@ public class ShareholderRequest {
 
     private Long shareId;
 
+
+    private Long companyId;
+
     private ShareholderCategoryEnum category = ShareholderCategoryEnum.INDIVIDUAL;
 
     @NotNull(message = "Please provide a valid shareholder type")
