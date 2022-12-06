@@ -159,7 +159,7 @@ public class ShareholderService {
             Optional<Share> optionalShare = getShareFromShareholder(shareholder, shareRequest.getShareId());
 
             if (optionalShare.isEmpty()) {
-                return ResponseData.getResponseData(IResponseEnum.INVALID_REQUEST, null, null);
+                return ResponseData.getResponseData(IResponseEnum.NO_SHARE_FOUND, String.valueOf(shareRequest.getShareId()), null);
             }
 
             if (shareRequest.getEquityId() != null && !Objects.equals(optionalShare.get().getEquityClass().getId(), shareRequest.getEquityId())) {
@@ -189,7 +189,7 @@ public class ShareholderService {
                 log.debug("updating the new equity class {} ", newEquity.getId());
                 optionalShare.get().setEquityClass(newEquity);
 
-            } else if (optionalShare.get().getTotalShares().equals(shareRequest.getTotalShares())) {
+            } else if (!optionalShare.get().getTotalShares().equals(shareRequest.getTotalShares())) {
                 //to avoid scenario where the total share is updated
                 EquityClass equityClass = optionalShare.get().getEquityClass();
 

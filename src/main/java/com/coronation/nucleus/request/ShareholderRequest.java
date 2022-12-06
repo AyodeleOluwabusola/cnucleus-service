@@ -16,7 +16,6 @@ import java.util.List;
 @NotNullIfAnotherFieldHasCertainValue(fieldName = "category",  fieldValue = "INDIVIDUAL", dependFieldName = "firstName", message = "First Name of the shareholder is mandatory")
 @NotNullIfAnotherFieldHasCertainValue(fieldName = "category",  fieldValue = "INDIVIDUAL", dependFieldName = "lastName", message = "Last Name of the shareholder is mandatory")
 @NotNullIfAnotherFieldHasCertainValue(fieldName = "category",  fieldValue = "COMPANY", dependFieldName = "companyName", message = "Company Name of the shareholder is mandatory")
-@NotNullIfAnotherFieldHasCertainValue(fieldName = "shareholderType",  fieldValue = "DIRECTOR,INVESTOR,SECRETARY,EMPLOYEE", dependFieldName = "equityClass", message = "Equity class of the shareholder is mandatory")
 public class ShareholderRequest {
 
     private Long shareholderId;
