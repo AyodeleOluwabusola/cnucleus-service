@@ -30,7 +30,7 @@ public class EquityClassService {
         EquityClass equityClass = new EquityClass();
         equityClass.setType(request.getType());
         equityClass.setName(request.getName());
-        equityClass.setCode(String.valueOf(request.getName().charAt(0)) + request.getName().charAt(request.getName().length()));
+        equityClass.setCode(getEquityCode(request.getName()));
         equityClass.setPricePerShare(request.getPricePerShare());
         equityClass.setTotalShares(request.getTotalShares());
 
@@ -72,4 +72,8 @@ public class EquityClassService {
         return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, result);
     }
 
+
+    private String getEquityCode(String equityName) {
+        return String.valueOf(equityName.charAt(0)) + equityName.charAt(equityName.length());
+    }
 }
