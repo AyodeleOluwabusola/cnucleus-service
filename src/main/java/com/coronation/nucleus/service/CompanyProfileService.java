@@ -68,7 +68,7 @@ public class CompanyProfileService {
         }
 
         Optional<CTUser> ctUser = iUserRepository.findById(request.getRequestingUser());
-        if(ctUser.isEmpty()){
+        if (ctUser.isEmpty()) {
             return ResponseData.getResponseData(IResponseEnum.NO_USER_FOUND, String.valueOf(request.getRequestingUser()), null);
         }
 
