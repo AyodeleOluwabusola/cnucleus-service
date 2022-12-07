@@ -18,7 +18,7 @@ import java.util.List;
 @Setter
 @NotNullIfAnotherFieldHasCertainValue(fieldName = "stage",  fieldValue = "2, FINAL", dependFieldName = "totalAuthorisedShares", message = "Total authorised shares issued to the company is mandatory")
 @NotNullIfAnotherFieldHasCertainValue(fieldName = "stage",  fieldValue = "2, FINAL", dependFieldName = "parValue", message = "Par value is mandatory")
-@NotNullIfAnotherFieldHasCertainValue(fieldName = "stage",  fieldValue = "FINAL", dependFieldName = "shareholders", message =  "Shareholder(s) must be provided")
+@NotNullIfAnotherFieldHasCertainValue(fieldName = "stage",  fieldValue = "FINAL", dependFieldName = "founders", message =  "Founder(s) must be provided")
 public class CompanyProfileRequest {
 
     private Long companyProfileId;
@@ -49,5 +49,5 @@ public class CompanyProfileRequest {
     @NotBlank(message = "Stage is required")
     private String stage;
 
-    private List<@Valid ShareholderFromCompanyRequest> shareholders;
+    private List<@Valid FounderRequest> founders;
 }

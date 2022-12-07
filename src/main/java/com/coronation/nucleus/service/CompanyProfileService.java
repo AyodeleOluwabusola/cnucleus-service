@@ -13,7 +13,7 @@ import com.coronation.nucleus.pojo.ResponseData;
 import com.coronation.nucleus.pojo.response.CompanyDashboardResponse;
 import com.coronation.nucleus.pojo.response.CompanyProfileResponse;
 import com.coronation.nucleus.request.CompanyProfileRequest;
-import com.coronation.nucleus.request.ShareholderFromCompanyRequest;
+import com.coronation.nucleus.request.FounderRequest;
 import com.coronation.nucleus.respositories.ICompanyProfileRepository;
 import com.coronation.nucleus.respositories.IEquityClassRepository;
 import com.coronation.nucleus.respositories.IShareholderRepository;
@@ -67,37 +67,41 @@ public class CompanyProfileService {
             companyProfile = existingCompanyProfile.get();
         }
 
+        Optional<CTUser> ctUser = iUserRepository.findById(request.getRequestingUser());
+        if(ctUser.isEmpty()){
+            return ResponseData.getResponseData(IResponseEnum.NO_USER_FOUND, String.valueOf(request.getRequestingUser()), null);
+        }
+
         companyProfile.setCompanyName(request.getCompanyName());
         companyProfile.setCompanyType(request.getCompanyType());
         companyProfile.setIncorporationDate(request.getIncorporationDate());
         companyProfile.setCountryIncorporated(request.getCountryIncorporated());
         companyProfile.setCurrency(request.getCurrency());
         companyProfile.setTotalAuthorisedShares(request.getTotalAuthorisedShares());
-        companyProfile.setUser(iUserRepository.getReferenceById(request.getRequestingUser()));
+        companyProfile.setUser(ctUser.get());
         companyProfile.setStage(request.getStage());
         companyProfile.setTotalAllocated(request.getTotalAuthorisedShares()); // all are allocated to the equity type
 
         EquityClass equityClass = getEquityClass(companyProfile, request);
-
-        if (request.getShareholders() != null && !request.getShareholders().isEmpty()) {
-            for (ShareholderFromCompanyRequest shareholderFromCompanyRequest : request.getShareholders()) {
+        if (request.getFounders() != null && !request.getFounders().isEmpty()) {
+            for (FounderRequest founderRequest : request.getFounders()) {
                 Shareholder shareholder = new Shareholder();
-                if (shareholderFromCompanyRequest.getShareholderId() != null) {
-                    Optional<Shareholder> existingShareholder = iShareholderRepository.findById(shareholderFromCompanyRequest.getShareholderId());
+                if (founderRequest.getFounderId() != null) {
+                    Optional<Shareholder> existingShareholder = iShareholderRepository.findById(founderRequest.getFounderId());
                     if (existingShareholder.isEmpty()) {
-                        return ResponseData.getResponseData(IResponseEnum.NO_SHAREHOLDER_FOUND, String.valueOf(shareholderFromCompanyRequest.getShareholderId()), null);
+                        return ResponseData.getResponseData(IResponseEnum.NO_SHAREHOLDER_FOUND, String.valueOf(founderRequest.getFounderId()), null);
                     }
                     shareholder = existingShareholder.get();
                 }
 
-                shareholder.setFirstName(shareholderFromCompanyRequest.getFirstName());
-                shareholder.setLastName(shareholderFromCompanyRequest.getLastName());
-                shareholder.setEmailAddress(shareholderFromCompanyRequest.getEmailAddress());
-                shareholder.setShareholderTypeEnum(shareholderFromCompanyRequest.getShareholderType());
+                shareholder.setFirstName(founderRequest.getFirstName());
+                shareholder.setLastName(founderRequest.getLastName());
+                shareholder.setEmailAddress(founderRequest.getEmailAddress());
+                shareholder.setShareholderTypeEnum(ShareholderTypeEnum.FOUNDER);
 
                 Share share = new Share();
-                share.setTotalShares(shareholderFromCompanyRequest.getTotalShares());
-                share.setDateIssued(shareholderFromCompanyRequest.getDateIssued());
+                share.setTotalShares(founderRequest.getTotalShares());
+                share.setDateIssued(founderRequest.getDateIssued());
                 share.setEquityClass(equityClass);
                 share.setShareholder(shareholder);
 
@@ -110,6 +114,7 @@ public class CompanyProfileService {
 
                 shareholder.setCompanyProfile(companyProfile);
 
+                // TODO : Check if shareholder already exists
                 companyProfile.addShareholder(shareholder);
             }
         }
@@ -152,27 +157,27 @@ public class CompanyProfileService {
                     response.setStage(profile.getStage());
                     response.setRequestingUser(profile.getUser().getId());
 
-                    List<ShareholderFromCompanyRequest> shareholders = profile.getShareholders()
+                    List<FounderRequest> founders = profile.getShareholders()
                             .stream()
                             .map(shareholder -> {
-                                ShareholderFromCompanyRequest shareholderFromCompanyRequest = new ShareholderFromCompanyRequest();
-                                shareholderFromCompanyRequest.setShareholderId(shareholder.getId());
-                                shareholderFromCompanyRequest.setFirstName(shareholder.getFirstName());
-                                shareholderFromCompanyRequest.setLastName(shareholder.getLastName());
-                                shareholderFromCompanyRequest.setEmailAddress(shareholder.getEmailAddress());
+                                FounderRequest founderRequest = new FounderRequest();
+                                founderRequest.setFounderId(shareholder.getId());
+                                founderRequest.setFirstName(shareholder.getFirstName());
+                                founderRequest.setLastName(shareholder.getLastName());
+                                founderRequest.setEmailAddress(shareholder.getEmailAddress());
 
-                                Share share = shareholder.getShares().iterator().next(); //at the point of creation shareholders have one share
+                                Share share = shareholder.getShares().iterator().next(); //at the point of creation founders have one share
 
-                                shareholderFromCompanyRequest.setTotalShares(share.getTotalShares());
-                                shareholderFromCompanyRequest.setDateIssued(share.getDateIssued());
-                                shareholderFromCompanyRequest.setShareId(share.getId());
-                                shareholderFromCompanyRequest.setShareholderType(ShareholderTypeEnum.FOUNDER);
+                                founderRequest.setTotalShares(share.getTotalShares());
+                                founderRequest.setDateIssued(share.getDateIssued());
+                                founderRequest.setShareId(share.getId());
+                                founderRequest.setShareholderType(ShareholderTypeEnum.FOUNDER);
 
-                                return shareholderFromCompanyRequest;
+                                return founderRequest;
                             }).collect(Collectors.toList());
 
 
-                    response.setShareholders(shareholders);
+                    response.setShareholders(founders);
 
                     return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, response);
                 }).orElse(ResponseData.getResponseData(IResponseEnum.NO_PENDING_REQUEST, null, null));

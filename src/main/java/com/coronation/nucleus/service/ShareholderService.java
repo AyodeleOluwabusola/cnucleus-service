@@ -16,16 +16,14 @@ import com.coronation.nucleus.respositories.IShareRepository;
 import com.coronation.nucleus.respositories.IShareholderRepository;
 import com.coronation.nucleus.respositories.ShareJdbcTemplate;
 import com.coronation.nucleus.util.ProxyTransformer;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -107,13 +105,13 @@ public class ShareholderService {
                 return ResponseData.getResponseData(IResponseEnum.ALLOCATION_SIZE_GREATER_THAN_TOTAL_SHARES, null, null);
             }
 
-            Share share1 = new Share();
-            share1.setShareholder(shareholder);
-            share1.setTotalShares(request.getTotalShares());
-            share1.setDateIssued(request.getDateIssued());
+            Share share = new Share();
+            share.setShareholder(shareholder);
+            share.setTotalShares(request.getTotalShares());
+            share.setDateIssued(request.getDateIssued());
 
-            share1.setEquityClass(optionalEquityClass.get());
-            shares.add(share1);
+            share.setEquityClass(optionalEquityClass.get());
+            shares.add(share);
         }
 
         return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, shares);
