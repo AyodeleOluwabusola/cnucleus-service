@@ -52,16 +52,19 @@ public class ShareholderService {
     @Autowired
     ShareJdbcTemplate shareJdbcTemplate;
 
-    public List<ResponseData<?>> handleShareholderCreation(List<ShareholderRequest> shareholderRequestList) {
+    public ResponseData<List<ResponseData<?>>> handleShareholderCreation(List<ShareholderRequest> shareholderRequestList) {
 
-        return shareholderRequestList.stream()
+        List<ResponseData<?>>  responseData =    shareholderRequestList.stream()
                 .map(shareholderRequest -> Optional.ofNullable(shareholderRequest.getCompanyId())
                         .flatMap(companyId -> companyProfileRepository.findById(companyId))
                         .map(companyProfile -> handleShareholderCreation(shareholderRequest, companyProfile))
                         .orElse(ResponseData.getResponseData(IResponseEnum.NO_COMPANY_PROFILE_FOUND, String.valueOf(shareholderRequest.getCompanyId()), null))).collect(Collectors.toList());
+
+        return ResponseData.getResponseData(IResponseEnum.SUCCESS, null , responseData);
+
     }
 
-    private ResponseData<Long> handleShareholderCreation(ShareholderRequest shareholderRequest, com.coronation.nucleus.entities.CompanyProfile companyProfile) {
+    private ResponseData<Shareholder> handleShareholderCreation(ShareholderRequest shareholderRequest, com.coronation.nucleus.entities.CompanyProfile companyProfile) {
 
         Shareholder shareholder = ProxyTransformer.transformToShareholder(shareholderRequest);
         if (shareholder == null) {
@@ -79,13 +82,13 @@ public class ShareholderService {
         companyProfileRepository.save(companyProfile);
         shareholderRepository.save(shareholder);
 
-        return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, shareholder.getId());
+        return ResponseData.getResponseData(IResponseEnum.SUCCESS, null, shareholder);
     }
 
     private ResponseData<List<Share>> getSharesFromReq(ShareholderRequest shareholderRequest, CompanyProfile companyProfile, Shareholder shareholder) {
 
         List<Share> shares = new ArrayList<>();
-
+        //TODO retrieve equity from comapany
         for (ShareRequest request : shareholderRequest.getShares()) {
             Optional<EquityClass> optionalEquityClass = Optional.ofNullable(request.getEquityId())
                     .flatMap(id -> iEquityClassRepository.findById(id));

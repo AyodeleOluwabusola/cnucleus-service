@@ -47,6 +47,7 @@ public class Shareholder extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ShareholderTypeEnum shareholderTypeEnum;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(mappedBy = "shareholder")
     @Cascade(CascadeType.ALL)
     private Set<Share> shares;

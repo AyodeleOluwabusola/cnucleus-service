@@ -31,7 +31,7 @@ public class ShareholderController {
 
 
     @PostMapping()
-    public List<ResponseData<?>> createShareholder(@RequestBody List<@Valid ShareholderRequest> shareholderRequestList) {
+    public ResponseData<List<ResponseData<?>>> createShareholder(@RequestBody List<@Valid ShareholderRequest> shareholderRequestList) {
         return shareholderService.handleShareholderCreation(shareholderRequestList);
     }
 
