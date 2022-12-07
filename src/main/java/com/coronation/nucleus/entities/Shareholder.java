@@ -46,6 +46,7 @@ public class Shareholder extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ShareholderTypeEnum shareholderTypeEnum;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(mappedBy = "shareholder")
     @Cascade(CascadeType.ALL)
     private Set<Share> shares;
@@ -65,4 +66,10 @@ public class Shareholder extends BaseEntity {
         return false;
     }
 
+    public Set<Share> getShares() {
+        if(shares == null){
+            shares = new HashSet<>();
+        }
+        return shares;
+    }
 }

@@ -5,7 +5,6 @@ import com.coronation.nucleus.pojo.ShareDataResp;
 import com.coronation.nucleus.request.ShareholderRequest;
 import com.coronation.nucleus.service.ShareholderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
+import java.util.List;
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -30,14 +31,12 @@ public class ShareholderController {
 
 
     @PostMapping()
-    @RequestMapping("/{companyId}/create")
-    public ResponseData<?> createShareholder(@PathVariable("companyId") Long companyId, @Valid @RequestBody ShareholderRequest shareholderRequest) {
-        return shareholderService.handleShareholderCreation(companyId, shareholderRequest);
+    public ResponseData<List<ResponseData<?>>> createShareholder(@RequestBody List<@Valid ShareholderRequest> shareholderRequestList) {
+        return shareholderService.handleShareholderCreation(shareholderRequestList);
     }
 
     @PutMapping()
-    @RequestMapping("/{companyId}/edit")
-    public ResponseData<?> editShareholder(@Valid @RequestBody ShareholderRequest shareholderRequest) {
+    public ResponseData<?> editShareholder(@RequestBody @Valid ShareholderRequest shareholderRequest) {
         return shareholderService.editShareholder(shareholderRequest);
     }
 
@@ -47,9 +46,9 @@ public class ShareholderController {
         return shareholderService.handleShareholderDataReq(companyId, optionalName, size, index);
     }
 
-    @DeleteMapping
-    @RequestMapping("/share/{shareId}")
-    public ResponseData<Boolean> softDeleteShareholders(@PathVariable(name = "shareId") Long shareId) {
+    @RequestMapping("/delete")
+    @PostMapping()
+    public List<ResponseData<Long>> softDeleteShareholders(@RequestBody List<Long> shareId) {
         return shareholderService.handleShareHolderDelete(shareId);
     }
 

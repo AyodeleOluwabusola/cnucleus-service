@@ -1,6 +1,6 @@
 package com.coronation.nucleus.pojo.response;
 
-import com.coronation.nucleus.request.ShareholderRequest;
+import com.coronation.nucleus.request.ShareholderFromCompanyRequest;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,6 +30,6 @@ public class CompanyProfileResponse {
 
     private String stage;
 
-    private List<ShareholderRequest> shareholders;
+    private List<ShareholderFromCompanyRequest> shareholders;
 
 }

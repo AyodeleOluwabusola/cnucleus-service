@@ -49,5 +49,5 @@ public class CompanyProfileRequest {
     @NotBlank(message = "Stage is required")
     private String stage;
 
-    private List<@Valid ShareholderRequest> shareholders;
+    private List<@Valid ShareholderFromCompanyRequest> shareholders;
 }
